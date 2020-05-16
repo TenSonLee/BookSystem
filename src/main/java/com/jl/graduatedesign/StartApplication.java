@@ -1,11 +1,11 @@
-package test;
+package com.jl.graduatedesign;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class TestApplication {
+public class StartApplication {
     public static void main(String[] args){
-        SpringApplication.run(TestApplication.class);
+        SpringApplication.run(StartApplication.class);
     }
 }
