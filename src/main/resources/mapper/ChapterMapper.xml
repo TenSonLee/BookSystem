@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jl.graduatedesign.dao.ChapterDao">
+
+    <resultMap id="baseResultMap" type="com.jl.graduatedesign.entity.Chapter">
+        <result column="chapter_id"  property="chapterId" />
+        <result column="book_id"  property="bookId" />
+        <result column="content_id"  property="contentId" />
+    </resultMap>
+
+    <select id="queryChapterListByBookId" resultMap="baseResultMap" >
+        select * from t_chapter where book_id = #{bookId} order by series asc
+    </select>
+
+</mapper>

@@ -1,0 +1,69 @@
+
+
+body.login{
+    background: url("../img/loginbg.jpeg") no-repeat;
+    background-size: 100%;
+}
+
+.login-area{
+    background-color: white;
+    padding: 10px;
+    border:1px solid white;
+    width: 400px;
+    height: 300px;
+    position: absolute;
+    left: 30%;
+    top: 20%;
+}
+
+.jumbotron{
+    margin-top: 20px;
+    background-color: aqua;
+    width: 800px;
+    height: 200px;
+}
+
+.recommend-area{
+    background-color: bisque;
+    width: 800px;
+}
+
+/* 图书列表相关样式 */
+.book-item{
+    margin: 20px;
+    height: 150px;
+}
+
+.book-item-cover{
+    background-color: cadetblue;
+    width: 100px;
+    height: 120px;
+}
+
+.book-item-content{
+    margin-left: 10px;
+    overflow: hidden;
+    white-space: normal;
+    word-break: break-all;
+}
+
+/* 图书信息相关样式 */
+.book-info-area{
+    margin: 20px;
+    height: 220px;
+}
+
+.book-info-cover{
+    background-color: cadetblue;
+    width: 180px;
+    height: 196px;
+}
+
+.book-info-operator>button{
+    margin-left: 20px;
+}
+
+.chapter-item>a:hover{
+    text-decoration: underline;
+    color: firebrick;
+}

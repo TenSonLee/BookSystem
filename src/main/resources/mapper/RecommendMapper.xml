@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jl.graduatedesign.dao.RecommendDao">
+
+    <resultMap id="baseResultMap" type="com.jl.graduatedesign.entity.Recommend">
+        <result column="user_id"  property="userId" />
+        <result column="recommend_id"  property="recommendId" />
+        <result column="book_id"  property="bookId" />
+    </resultMap>
+
+    <select id="getByUserAndBookId" resultMap="baseResultMap">
+        select * from t_recommend where user_id = ${userId} and book_id = ${bookId}
+    </select>
+
+    <insert id="addRecommend" parameterType="com.jl.graduatedesign.entity.Recommend" useGeneratedKeys="true" keyProperty="recommendId">
+        insert into t_recommend (user_id,book_id,time) values (#{userId},#{bookId},#{time})
+    </insert>
+
+    <delete id="deleteRecommend">
+        delete from t_recommend where user_id = #{userId} and book_id = #{bookId}
+    </delete>
+</mapper>

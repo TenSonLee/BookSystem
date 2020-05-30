@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>图书详情页</title>
+  <link rel="stylesheet" href="./layui/css/layui.css"><!--引入layui文件，-->
+  <link rel="stylesheet" href="./css/base.css"><!--加入自己的CSS样式-->
+</head>
+<body class="layui-layout-body">
+  <div class="layui-layout layui-layout-admin">
+    <div class="layui-header">
+      <div class="layui-logo">图书推荐系统</div>
+      <!-- 头部区域（可配合layui已有的水平导航） -->
+      <ul class="layui-nav layui-layout-right">
+        <li class="layui-nav-item"><a href="index.html">首页</a></li>
+        <li class="layui-nav-item"><a href="">我的收藏</a></li>
+        <li class="layui-nav-item"><a href="">阅读记录</a></li>
+        <li class="layui-nav-item"><a href="">历史评价</a></li>
+        <li class="layui-nav-item"><a href="">个人中心</a></li>
+      </ul>
+    </div>
+    
+    <div class="layui-body">
+      <!-- 书籍信息 -->
+      <div style="padding-top: 15px;" class="book-info-area">
+        <div id="book_info_view"></div>
+      </div>
+      
+      <!-- 目录&评价展示tab  -->
+      <div class="book-ex-info-area">
+        <div class="layui-tab layui-tab-brief">
+          <ul class="layui-tab-title">
+            <li class="layui-this">目录</li>
+            <li>本书评价</li>
+          </ul>
+          <div class="layui-tab-content">
+            <div class="layui-tab-item layui-show" id="catalog_view"></div>
+            <div class="layui-tab-item" id="evaluation_view"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+  </div>
+<script src="./layui/layui.js"></script>
+
+<script id="book-info" type="text/html">
+    <div class="layui-container" style="width:900px">
+        <div class="layui-row">
+          <div class="layui-col-md4 book-info-cover">
+            <span>{{ d.cover }}</span>
+          </div>
+
+          <div class="layui-col-md6 book-info-content" style="margin-left:20px">
+            <p style="margin-top:5px;height:20px">{{ d.title }}</p>
+            <p style="margin-top:5px;height:20px"> 作者： {{ d.author }}</p>
+            <p style="margin-top:10px;width:300px;height:40px">简介: {{ d.desc }}</p>
+            <p style="margin-top:10px;width:300px;height:20px">{{ d.words }}字   {{ d.recommendNum }}人推荐   {{ d.favoritesNum }}人收藏  {{ d.evaluationNum }}人评价</p>
+
+
+            <div class="book-info-operator">
+              <button class="layui-btn layui-btn-sm" style="margin-top:60px">开始阅读</button>
+              <button class="layui-btn layui-btn-sm" style="margin-top:60px">推荐本书</button>
+              <button class="layui-btn layui-btn-sm" style="margin-top:60px">评价本书</button>
+              <button class="layui-btn layui-btn-sm" style="margin-top:60px">加入收藏</button>
+            </div>
+          </div>
+
+          <div class="layui-col-md2 book-info-score">
+              <div id="book_rate"></div>
+          </div>
+
+        </div>
+    </div>        
+</script>
+
+<script id="book-catalog" type="text/html">
+    <ul class="book-catalog-list" style="width:750px;list-style:none;">
+        {{#  layui.each(d.list, function(index, chapter){ }}
+        <li class="chapter-item" style="width:200px;float:left;margin:10px 10px 5px 40px;line-height:20px">
+          <a style="width:200px;" href="book_read.html?chapterId={{ chapter.chapterId }}&contentId={{ chapter.contentId }}">{{ chapter.title }}</a>
+        </li>
+        {{#  }); }}
+        {{#  if(d.list.length === 0){ }}
+          无数据
+        {{#  } }} 
+      </ul>
+</script>
+
+<script id="book-evaluation" type="text/html">
+    <ul class="evaluation-list">
+        {{#  layui.each(d.list, function(index, evaluation){ }}
+        <li class="evaluation-item" style="width:750px;height:150px;margin-left:50px">
+          <div class="layui-container" >
+            <div class="evaluation_head">
+                <span>{{ index+1 }}楼</span>
+                <span style="color:blue;margin-left:20px">{{ evaluation.userName }}</span>
+                <span style="margin-left:50px" class="evaluation_rate" id="evaluation_rate_{{ index }}" data="{{ evaluation.score }}"></span>
+                <span style="color:grey;margin-left:50px;">{{ evaluation.time }}最后编辑</span>                    
+            </div>
+
+            <div class="evaluation_body" style="margin:10px 10px 10px 45px">
+                <p>
+                    {{ evaluation.content }}
+                </p>
+            </div>
+          </span>
+        </li>
+        <HR style="FILTER: progid:DXImageTransform.Microsoft.Shadow(color:#987cb9,direction:145,strength:15)" width="80%" color=#987cb9 SIZE=1>
+        {{#  }); }}
+        {{#  if(d.list.length === 0){ }}
+          暂无评价内容
+        {{#  } }} 
+      </ul>
+</script>
+
+<script>
+layui.use(['jquery','form','layer','element','laytpl','rate'], function(){
+  var element = layui.element;
+  var $ = layui.jquery;
+  var laytpl = layui.laytpl;
+  var form = layui.form;
+  var layer = layui.layer;
+  var rate = layui.rate;
+
+  var bookInfoData = { //数据
+    "bookId":"1",
+    "cover":"img1",
+    "title":"1",
+    "author":"1",
+    "desc":"111111111111111111111111111111",
+    "words":"108.2万",
+    "recommendNum":"200",
+    "favoritesNum":"50",
+    "evaluationNum":"33",
+    "score":"4"
+  }
+  var bookCatalogData = { //数据
+    "list":[
+        { 
+            "chapterId":"1",
+            "contentId":"1",
+            "title":"第一章 xxxxxxxxxxxxxxxxxxxx",
+            "series":"1",
+            "words":"3241"
+        },
+        {
+            "chapterId":"2",
+            "contentId":"2",
+            "title":"第二章 xxxxx",
+            "series":"2",
+            "words":"3241"
+        },
+        {
+            "chapterId":"3",
+            "contentId":"3",
+            "title":"第三章 xxxxx",
+            "series":"3",
+            "words":"3241"
+        },
+        {
+            "chapterId":"4",
+            "contentId":"4",
+            "title":"第四章 xxxxx",
+            "series":"4",
+            "words":"3241"
+        },
+        {
+            "chapterId":"5",
+            "contentId":"5",
+            "title":"第五章 xxxxx",
+            "series":"5",
+            "words":"3241"
+        },
+        {
+            "chapterId":"6",
+            "contentId":"6",
+            "title":"第六章 xxxxx",
+            "series":"6",
+            "words":"3241"
+        },
+        {
+            "chapterId":"7",
+            "contentId":"7",
+            "title":"第七章 xxxxx",
+            "series":"7",
+            "words":"3241"
+        }
+    ]
+  }
+
+  var bookEvaluationData = { //数据
+    "list":[
+        {
+            "evaluationId":"1",
+            "userName":"一号用户",
+            "score":"3",
+            "time":"2020-5-29 16:19",
+            "content":"我觉得这本书读起来不是很舒服。"
+        },
+        {
+            "evaluationId":"2",
+            "userName":"二号用户",
+            "score":"2",
+            "time":"2020-5-29 16:19",
+            "content":"我觉得这本书不好看。"
+        },
+        {
+            "evaluationId":"3",
+            "userName":"三号用户",
+            "score":"4",
+            "time":"2020-5-29 16:19",
+            "content":"这本书挺Nice的。"
+        },
+        {
+            "evaluationId":"4",
+            "userName":"四号用户",
+            "score":"5",
+            "time":"2020-5-29 16:19",
+            "content":"非常好的一本书。值得一看"
+        }
+    ]
+  }
+
+  var bookInfo = document.getElementById('book-info')
+  var bookCatalog = document.getElementById('book-catalog')
+  var bookEvaluation = document.getElementById('book-evaluation')
+
+  var bookInfoTpl = bookInfo.innerHTML
+  ,bookInfoView = document.getElementById('book_info_view');
+  laytpl(bookInfoTpl).render(bookInfoData, function(html){
+    bookInfoView.innerHTML = html;
+  });
+
+  var bookCatalogTpl = bookCatalog.innerHTML
+  ,bookCatalogView = document.getElementById('catalog_view');
+  laytpl(bookCatalogTpl).render(bookCatalogData, function(html){
+    bookCatalogView.innerHTML = html;
+  });
+
+  var bookEvaluationTpl = bookEvaluation.innerHTML
+  ,bookEvaluationView = document.getElementById('evaluation_view');
+  laytpl(bookEvaluationTpl).render(bookEvaluationData, function(html){
+    bookEvaluationView.innerHTML = html;
+  });
+
+  rate.render({
+      elem: '#book_rate',
+      value: bookInfoData.score,
+      text: true,
+      setText: function(value){ //自定义文本的回调
+        this.span.text(value + "星");
+      },
+      readonly: true
+  })
+
+//   评价列表里的评分控件
+  $('.evaluation_rate').each(function () { 
+      o = this
+      id = '#'+$(o).attr('id');
+      value = $(o).attr('data');
+
+      rate.render({
+        elem: id,
+        value: value,
+        text: true,
+        setText: function(value){ //自定义文本的回调
+            this.span.text(value + "星");
+        },
+        readonly: true
+    })
+   })
+});
+</script>
+</body>
+</html>

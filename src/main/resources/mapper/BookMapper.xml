@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jl.graduatedesign.dao.BookDao">
+
+    <resultMap id="baseResultMap" type="com.jl.graduatedesign.entity.Book">
+        <result column="book_category_id"  property="bookCategoryId" />
+        <result column="book_id"  property="bookId" />
+        <result column="favorites_num"  property="favoritesNum" />
+        <result column="evaluation_num"  property="evaluationNum" />
+        <result column="recommend_num"  property="recommendNum" />
+    </resultMap>
+
+    <select id="getBookById" resultMap="baseResultMap">
+        select * from t_book where book_id = #{bookId}
+    </select>
+
+    <update id="updateBook" parameterType="com.jl.graduatedesign.entity.Book">
+        update t_book
+        <set>
+            <if test="bookCategoryId != null">book_category_id=#{bookCategoryId},</if>
+            <if test="title != null">title=#{title},</if>
+            <if test="desc != null">`desc`=#{desc},</if>
+            <if test="cover != null">cover=#{cover},</if>
+            <if test="author != null">author=#{author},</if>
+            <if test="publisher != null">publisher=#{publisher},</if>
+            <if test="pubdate != null">pubdate=#{pubdate},</if>
+            <if test="favoritesNum != null">favorites_num=#{favoritesNum},</if>
+            <if test="evaluationNum != null">evaluation_num=#{evaluationNum},</if>
+            <if test="recommendNum != null">recommend_num=#{recommendNum}</if>
+        </set>
+        where book_id=#{bookId}
+    </update>
+</mapper>

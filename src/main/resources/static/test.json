@@ -1,0 +1,35 @@
+{ 
+    "rel": true,
+    "msg": "success",
+    "list":[
+        {
+            "evaluationId":"1",
+            "userName":"一号用户",
+            "score":"3",
+            "time":"2020-5-29 16:19",
+            "content":"我觉得这本书读起来不是很舒服。"
+        },
+        {
+            "evaluationId":"2",
+            "userName":"二号用户",
+            "score":"2",
+            "time":"2020-5-29 16:19",
+            "content":"我觉得这本书不好看。"
+        },
+        {
+            "evaluationId":"3",
+            "userName":"三号用户",
+            "score":"4",
+            "time":"2020-5-29 16:19",
+            "content":"这本书挺Nice的。"
+        },
+        {
+            "evaluationId":"4",
+            "userName":"四号用户",
+            "score":"5",
+            "time":"2020-5-29 16:19",
+            "content":"非常好的一本书。值得一看"
+        }
+    ],
+    "count":4
+  }

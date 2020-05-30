@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jl.graduatedesign.dao.EvaluationDao">
+
+    <resultMap id="baseResultMap" type="com.jl.graduatedesign.entity.Evaluation">
+        <result column="evaluation_id"  property="evaluationId" />
+        <result column="book_id"  property="bookId" />
+        <result column="user_id"  property="userId" />
+    </resultMap>
+
+    <select id="getEvaluationByUserAndBookId" resultMap="baseResultMap">
+        select * from t_evaluation where book_id = #{bookId} and user_id = #{userId}
+    </select>
+
+    <select id="getBookTotalScore" resultType="java.lang.Integer">
+        select round(sum(score)/count(*)) from t_evaluation where book_id = #{bookId}
+    </select>
+
+    <update id="updateEvaluation" parameterType="com.jl.graduatedesign.entity.Evaluation">
+        update t_evaluation
+        <set>
+            <if test="userId != null">user_id=#{userId},</if>
+            <if test="bookId != null">book_id=#{bookId},</if>
+            <if test="score != null">score=#{score},</if>
+            <if test="content != null">content=#{content},</if>
+            <if test="time != null">`time`=#{time}</if>
+        </set>
+        where evaluation_id = #{evaluationId}
+    </update>
+
+    <insert id="insertEvaluation" parameterType="com.jl.graduatedesign.entity.Evaluation" useGeneratedKeys="true" keyProperty="evaluationId">
+        insert into t_evaluation (user_id,book_id,score,content,time)
+        values (#{userId},#{bookId},#{score},#{content},#{time})
+    </insert>
+
+    <delete id="deleteEvaluation">
+        delete from t_evaluation where user_id = #{userId} and book_id = #{bookId}
+    </delete>
+</mapper>

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>图书推荐系统首页</title>
+  <link rel="stylesheet" href="./layui/css/layui.css"><!--引入layui文件，-->
+  <link rel="stylesheet" href="./css/base.css"><!--加入自己的CSS样式-->
+</head>
+<body class="layui-layout-body">
+  <div class="layui-layout layui-layout-admin">
+    <div class="layui-header">
+      <div class="layui-logo">图书推荐系统</div>
+      <!-- 头部区域（可配合layui已有的水平导航） -->
+      <ul class="layui-nav layui-layout-right">
+        <li class="layui-nav-item layui-this"><a href="index.html">首页</a></li>
+        <li class="layui-nav-item"><a href="">我的收藏</a></li>
+        <li class="layui-nav-item"><a href="">阅读记录</a></li>
+        <li class="layui-nav-item"><a href="">历史评价</a></li>
+        <li class="layui-nav-item"><a href="">个人中心</a></li>
+      </ul>
+    </div>
+    
+    <div class="layui-body">
+      <!-- 内容主体区域 -->
+      <div style="padding-top: 15px;" class="jumbotron">
+        <h2 style="margin-left: 350px;margin-top: 20px;">智能图书推荐系统</h2>
+        <form class="layui-form bg-blue" action="" style="margin-left: 300px;margin-top: 50px;">                     
+          <div class="layui-form-item margin-top-10" >  
+              <div class="layui-input-inline" >
+                  <!-- //采用inline表示可以继续放 -->  
+                  <input type="bookname" name="bookname"  autocomplete="off" class="layui-input">      
+              </div>
+              <button class="layui-btn " lay-submit lay-filter="search">搜索</button>
+         </div>
+        </form>
+      </div>
+
+      <div class="recommend-area">
+        <div class="layui-tab layui-tab-brief">
+          <ul class="layui-tab-title">
+            <li class="layui-this">热门图书推荐</li>
+            <li>个性化图书推荐</li>
+          </ul>
+          <div class="layui-tab-content">
+            <div class="layui-tab-item layui-show" id="view"></div>
+            <div class="layui-tab-item">内容2</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+  </div>
+<script src="./layui/layui.js"></script>
+
+<script id="book-list" type="text/html">
+  <ul class="book-list">
+    {{#  layui.each(d.list, function(index, book){ }}
+    <li class="book-item">
+      <div class="layui-container" style="width:750px">
+        <div class="layui-row">
+          <div class="layui-col-md3 book-item-cover">
+            <span>{{ book.cover }}</span>
+          </div>
+          <div class="layui-col-md6 book-item-content">
+            <p style="margin-top:5px">{{ book.title }}</p>
+            <p style="margin-top:5px">作者： {{ book.author }}</p>
+            <p style="margin-top:10px;width:300px">简介: {{ book.desc }}</p>
+          </div>
+          <div class="layui-col-md3 book-item-operator">
+            <button style="margin-top:100px">书籍详情</button>
+          </div>
+        </div>
+      </div>
+    </li>
+    {{#  }); }}
+    {{#  if(d.list.length === 0){ }}
+      无数据
+    {{#  } }} 
+  </ul>
+</script>
+
+<script>
+//JavaScript代码区域
+layui.use(['jquery','form','layer','element','laytpl'], function(){
+  var element = layui.element;
+  var $ = layui.jquery;
+  var laytpl = layui.laytpl;
+  var form = layui.form;
+  var layer = layui.layer;
+
+  var data = { //数据
+    "list":[
+      {"bookId":"1","cover":"img1","title":"1","author":"1","desc":"111111111111111111111111111111"},
+      {"bookId":"2","cover":"img2","title":"2","author":"2","desc":"2"}
+    ]
+  }
+  var bookList = document.getElementById('book-list')
+  var getTpl = bookList.innerHTML
+  ,view = document.getElementById('view');
+  laytpl(getTpl).render(data, function(html){
+    view.innerHTML = html;
+  });
+  
+});
+</script>
+</body>
+</html>

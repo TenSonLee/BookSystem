@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>图书详情页</title>
+    <link rel="stylesheet" href="./layui/css/layui.css">
+    <!--引入layui文件，-->
+    <link rel="stylesheet" href="./css/base.css">
+    <!--加入自己的CSS样式-->
+</head>
+
+<body class="layui-layout-body">
+    <div class="layui-layout layui-layout-admin">
+        <div class="layui-header">
+            <div class="layui-logo">图书推荐系统</div>
+            <!-- 头部区域（可配合layui已有的水平导航） -->
+            <ul class="layui-nav layui-layout-right">
+                <li class="layui-nav-item"><a href="index.html">首页</a></li>
+                <li class="layui-nav-item"><a href="">我的收藏</a></li>
+                <li class="layui-nav-item"><a href="">阅读记录</a></li>
+                <li class="layui-nav-item"><a href="">历史评价</a></li>
+                <li class="layui-nav-item"><a href="">个人中心</a></li>
+            </ul>
+        </div>
+
+        <div class="layui-body">
+            <!-- 书籍信息 -->
+            <div style="padding-top: 15px;" class="book-info-area">
+                <div id="book_info_view"></div>
+            </div>
+
+            <!-- 目录&评价展示tab  -->
+            <div class="book-ex-info-area">
+                <div class="layui-tab layui-tab-brief">
+                    <ul class="layui-tab-title">
+                        <li class="layui-this">目录</li>
+                        <li>本书评价</li>
+                    </ul>
+                    <div class="layui-tab-content">
+                        <div class="layui-tab-item layui-show" id="catalog_view"></div>
+                        <div class="layui-tab-item">
+                            <div id="evaluation_view"></div>
+                            <div id="paged"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <script src="./layui/layui.js"></script>
+    <script src="./js/urlParam.js"></script>
+
+    <script id="book-info" type="text/html">
+    <div class="layui-container" style="width:900px">
+        <div class="layui-row">
+          <div class="layui-col-md4 book-info-cover">
+            <span>{{ d.cover }}</span>
+          </div>
+
+          <div class="layui-col-md6 book-info-content" style="margin-left:20px">
+            <p style="margin-top:5px;height:20px">{{ d.title }}</p>
+            <p style="margin-top:5px;height:20px"> 作者： {{ d.author }}</p>
+            <p style="margin-top:10px;width:300px;height:40px">简介: {{ d.desc }}</p>
+            <p style="margin-top:10px;width:300px;height:20px">{{ d.recommendNum }}人推荐   {{ d.favoritesNum }}人收藏  {{ d.evaluationNum }}人评价</p>
+
+
+            <div class="book-info-operator">
+              <button class="layui-btn layui-btn-sm" style="margin-top:60px">开始阅读</button>
+              <button class="layui-btn layui-btn-sm" style="margin-top:60px" id="cancelRecommend">取消推荐</button>     
+              <button class="layui-btn layui-btn-sm" style="margin-top:60px" id="recommendBook">推荐本书</button>
+              <button class="layui-btn layui-btn-sm" style="margin-top:60px" id="evaluateBook">评价本书</button>
+              <button class="layui-btn layui-btn-sm" style="margin-top:60px">加入收藏</button>
+            </div>
+          </div>
+
+          <div class="layui-col-md2 book-info-score">
+              <div id="book_rate"></div>
+          </div>
+
+        </div>
+    </div>        
+</script>
+
+    <script id="book-catalog" type="text/html">
+    <ul class="book-catalog-list" style="width:750px;list-style:none;">
+        {{#  layui.each(d.list, function(index, chapter){ }}
+        <li class="chapter-item" style="width:200px;float:left;margin:10px 10px 5px 40px;line-height:20px">
+          <a style="width:200px;" href="book_read.html?chapterId={{ chapter.chapterId }}&contentId={{ chapter.contentId }}">{{ chapter.title }}</a>
+        </li>
+        {{#  }); }}
+        {{#  if(d.list.length === 0){ }}
+          无数据
+        {{#  } }} 
+      </ul>
+</script>
+
+    <script id="book-evaluation" type="text/html">
+    <ul class="evaluation-list">
+        {{#  layui.each(d.list, function(index, evaluation){ }}
+        <li class="evaluation-item" style="width:750px;height:150px;margin-left:50px">
+          <div class="layui-container" >
+            <div class="evaluation_head">
+                <span>{{ index+1 }}楼</span>
+                <span style="color:blue;margin-left:20px">{{ evaluation.userName }}</span>
+                <span style="margin-left:50px" class="evaluation_rate" id="evaluation_rate_{{ index }}" data="{{ evaluation.score }}"></span>
+                <span style="color:grey;margin-left:50px;">{{ evaluation.time }}最后编辑</span>                    
+            </div>
+
+            <div class="evaluation_body" style="margin:10px 10px 10px 45px">
+                <p>
+                    {{ evaluation.content }}
+                </p>
+            </div>
+          </span>
+        </li>
+        <HR style="FILTER: progid:DXImageTransform.Microsoft.Shadow(color:#987cb9,direction:145,strength:15)" width="80%" color=#987cb9 SIZE=1>
+        {{#  }); }}
+        {{#  if(d.list.length === 0){ }}
+          暂无评价内容
+        {{#  } }} 
+      </ul>
+</script>
+
+    <script>
+        layui.config({
+            base: 'js/'
+        }).use(['jquery', 'form', 'layer', 'element', 'laytpl', 'rate', 'paging'], function () {
+            var element = layui.element;
+            var $ = layui.jquery;
+            var laytpl = layui.laytpl;
+            var form = layui.form;
+            var layer = layui.layer;
+            var rate = layui.rate;
+            var paging = layui.paging();
+
+            var userId = sessionStorage.getItem('userId');
+            if (userId == null) {
+                userId = 1;
+            }
+
+            var bookId = getRequest().bookId;
+            console.log(bookId)
+            var initRequest = {
+                bookId: bookId,
+                userId: userId
+            }
+
+            var bookInfoData = {}
+            //图书信息初始化
+            $.ajax({
+                url: 'http://localhost:8080/bookSystem/getBookInfo',
+                type: 'post',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify(initRequest),
+                success: function (res) {
+                    if (res.code == 0) {
+                        //res.code == 0,表示用户输入成功，1表示失败               
+                        bookInfoData = res.data;
+
+
+                        var bookInfo = document.getElementById('book-info')
+                        var bookInfoTpl = bookInfo.innerHTML
+                            , bookInfoView = document.getElementById('book_info_view');
+                        laytpl(bookInfoTpl).render(bookInfoData, function (html) {
+                            bookInfoView.innerHTML = html;
+                        });
+                        rate.render({
+                            elem: '#book_rate',
+                            value: bookInfoData.score,
+                            text: true,
+                            setText: function (value) { //自定义文本的回调
+                                this.span.text(value + "星");
+                            },
+                            readonly: true
+                        })
+                        if (bookInfoData.recommended == true) {
+                            $('#recommendBook').css({
+                                display: "none"
+                            })
+                        } else {
+                            $('#cancelRecommend').css({
+                                display: "none"
+                            })
+                        }
+                        //点击推荐本书按钮触发事件
+                        $('#recommendBook').click(function () {
+                            var request = {
+                                userId: userId,
+                                bookId: bookInfoData.bookId
+                            }
+                            $.ajax({
+                                url: 'http://localhost:8080/bookSystem/recommendBook',
+                                type: 'post',
+                                dataType: 'json',
+                                contentType: 'application/json',
+                                data: JSON.stringify(request),
+                                beforeSend: function () {
+                                    //弹出的lodinng层
+                                    layer.load(2, {
+                                        shade: [0.5, "#333"]
+                                    });
+                                },
+                                success: function (res) {
+                                    if (res.code == 0) {
+                                        //res.code == 0,表示用户输入成功，1表示失败
+                                        bookInfoData.recommended = true;
+                                        layer.msg('推荐成功')
+                                        $('#recommendBook').css({
+                                            display: "none"
+                                        })
+                                        $('#cancelRecommend').css({
+                                            display: "inline"
+                                        })
+                                    } else {
+                                        //不等于0时填出的内容
+                                        layer.msg(res.msg)
+                                    }
+                                },
+                                error: function () {
+                                    //用户输入与接口内容不对应，显示文字
+                                    layer.msg("网络繁忙，访问失败")
+                                },
+                                complete: function () {
+                                    //关掉loading
+                                    layer.closeAll("loading")
+                                }
+                            })
+                        })
+
+                        //点击取消推荐按钮触发事件
+                        $('#cancelRecommend').click(function () {
+                            var request = {
+                                userId: userId,
+                                bookId: bookInfoData.bookId
+                            }
+                            $.ajax({
+                                url: 'http://localhost:8080/bookSystem/cancelRecommend',
+                                type: 'post',
+                                dataType: 'json',
+                                contentType: 'application/json',
+                                data: JSON.stringify(request),
+                                beforeSend: function () {
+                                    //弹出的lodinng层
+                                    layer.load(2, {
+                                        shade: [0.5, "#333"]
+                                    });
+                                },
+                                success: function (res) {
+                                    if (res.code == 0) {
+                                        //res.code == 0,表示用户输入成功，1表示失败
+                                        bookInfoData.recommended = false;
+                                        layer.msg('取消成功')
+                                        $('#recommendBook').css({
+                                            display: "inline"
+                                        })
+                                        $('#cancelRecommend').css({
+                                            display: "none"
+                                        })
+                                    } else {
+                                        //不等于0时填出的内容
+                                        layer.msg(res.msg)
+                                    }
+                                },
+                                error: function () {
+                                    //用户输入与接口内容不对应，显示文字
+                                    layer.msg("网络繁忙，访问失败")
+                                },
+                                complete: function () {
+                                    //关掉loading
+                                    layer.closeAll("loading")
+                                }
+                            })
+                        })
+
+                        //点击评价本书按钮触发事件
+                        $('#evaluateBook').click(function () {
+                            var request = {
+                                userId: userId,
+                                bookId: bookInfoData.bookId
+                            }
+                            //首先获得我对该书已有的评价内容
+                            $.ajax({
+                                url: 'http://localhost:8080/bookSystem/getMyEvaluation',
+                                type: 'post',
+                                dataType: 'json',
+                                contentType: 'application/json',
+                                data: JSON.stringify(request),
+                                success: function (res) {
+                                    if (res.code == 0) {
+                                        //res.code == 0,表示用户输入成功，1表示失败
+                                        myEvaluationData = res.data
+                                        var myEvaluationTmpData = {
+                                            "evaluationId": myEvaluationData.evaluationId,
+                                            "bookId": myEvaluationData.bookId,
+                                            "userId": myEvaluationData.userId,
+                                            "score": myEvaluationData.score,
+                                            "time": myEvaluationData.time,
+                                            "content": myEvaluationData.content
+                                        }
+                                        $('#evaluationContentText').val(myEvaluationTmpData.content);
+                                        rate.render({
+                                            elem: '#myEvaluationScore',
+                                            value: myEvaluationTmpData.score,
+                                            text: true,
+                                            setText: function (value) { //自定义文本的回调
+                                                this.span.text(value + "星");
+                                            },
+                                            choose: function (value) {
+                                                myEvaluationData.score = value;
+                                            }
+                                        })
+                                        layer.open({
+                                            title: '书籍评价',
+                                            area: '600px',
+                                            type: 1,
+                                            content: $('#evaluationContentArea')
+                                        })
+
+                                    } else {
+                                        //不等于0时填出的内容
+                                        layer.msg(res.msg)
+                                    }
+                                }
+                            })
+                        })
+
+                        $('#submitEvaluate').click(function () {
+                            myEvaluationData.content = $('#evaluationContentText').val()
+                            var request = {
+                                userId: userId,
+                                bookId: bookInfoData.bookId,
+                                score: myEvaluationData.score,
+                                content: myEvaluationData.content
+                            }
+                            //发起添加评价的请求
+                            $.ajax({
+                                url: 'http://localhost:8080/bookSystem/addEvaluation',
+                                type: 'post',
+                                dataType: 'json',
+                                contentType: 'application/json',
+                                data: JSON.stringify(request),
+                                success: function (res) {
+                                    if (res.code == 0) {
+                                        //res.code == 0,表示用户输入成功，1表示失败               
+                                        layer.msg("评价成功")
+
+                                        layer.closeAll('page')
+                                    } else {
+                                        //不等于0时填出的内容
+                                        layer.msg(res.msg)
+                                    }
+                                }
+                            })
+                        })
+
+                        $('#cancelEvaluate').click(function () {
+                            layer.closeAll()
+                        })
+
+                        $('#deleteEvaluate').click(function () {
+                            var request = {
+                                userId: userId,
+                                bookId: bookInfoData.bookId
+                            }
+                            //发起添加评价的请求
+                            $.ajax({
+                                url: 'http://localhost:8080/bookSystem/deleteEvaluation',
+                                type: 'post',
+                                dataType: 'json',
+                                contentType: 'application/json',
+                                data: JSON.stringify(request),
+                                success: function (res) {
+                                    if (res.code == 0) {
+                                        //res.code == 0,表示用户输入成功，1表示失败               
+                                        layer.msg("删除成功")
+
+                                        layer.closeAll('page')
+                                    } else {
+                                        //不等于0时填出的内容
+                                        layer.msg(res.msg)
+                                    }
+                                }
+                            })
+                        })
+                    } else {
+                        //不等于0时填出的内容
+                        layer.msg(res.msg)
+                    }
+                }
+            })
+
+            var bookCatalogData = { //数据
+                "list": []
+            }
+
+            //图书目录初始化
+            $.ajax({
+                url: 'http://localhost:8080/bookSystem/getCatalogList',
+                type: 'post',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify(bookId),
+                success: function (res) {
+                    if (res.code == 0) {
+                        //res.code == 0,表示用户输入成功，1表示失败               
+                        bookCatalogData.list = res.data;
+                        var bookCatalog = document.getElementById('book-catalog')
+                        var bookCatalogTpl = bookCatalog.innerHTML
+                            , bookCatalogView = document.getElementById('catalog_view');
+                        laytpl(bookCatalogTpl).render(bookCatalogData, function (html) {
+                            bookCatalogView.innerHTML = html;
+                        });
+                    } else {
+                        //不等于0时填出的内容
+                        layer.msg(res.msg)
+                    }
+                }
+            })
+
+            // 本书评价分页初始化
+            paging.init({
+                url: 'test.json', //地址
+                type: 'GET',
+                elem: '#evaluation_view', //内容容器
+                params: { //发送到服务端的参数
+                    t: Math.random(),
+                    action: 'GetXxx'
+                },
+                tempElem: '#book-evaluation', //模块容器
+                pageConfig: { //分页参数配置
+                    elem: 'paged', //分页容器
+                    pageSize: 2 //分页大小
+                },
+                success: function () { //渲染成功的回调
+                    //   评价列表里的评分控件
+                    $('.evaluation_rate').each(function () {
+                        o = this
+                        id = '#' + $(o).attr('id');
+                        value = $(o).attr('data');
+
+                        rate.render({
+                            elem: id,
+                            value: value,
+                            text: true,
+                            setText: function (value) { //自定义文本的回调
+                                this.span.text(value + "星");
+                            },
+                            readonly: true
+                        })
+                    })
+                    //alert('渲染成功');
+                },
+                fail: function (msg) { //获取数据失败的回调
+                    //alert('获取数据失败')
+                },
+                complete: function () { //完成的回调
+                    //alert('处理完成');
+                },
+            });
+
+            var myEvaluationData = {}
+        });
+    </script>
+
+    <div id="evaluationContentArea" style="display: none;">
+        <div id="myEvaluationScoreArea">
+            <label class="layui-form-label">请评分</label>
+            <div id="myEvaluationScore"></div>
+        </div>
+        <div id="myEvaluationContent">
+            <label class="layui-form-label">评价内容</label>
+            <div class="layui-input-block" style="width: 450px;">
+                <textarea placeholder="请输入内容" class="layui-textarea" id="evaluationContentText"></textarea>
+            </div>
+        </div>
+        <div id="myEvaluationOperator" style="width: 400px;margin-left: 35%;">
+            <button class="layui-btn layui-btn-sm" style="margin-top:40px" id="submitEvaluate">发布</button>
+            <button class="layui-btn layui-btn-sm" style="margin-top:40px" id="cancelEvaluate">取消</button>
+            <button class="layui-btn layui-btn-sm" style="margin-top:40px" id="deleteEvaluate">删除</button>
+        </div>
+    </div>
+</body>
+
+</html>
