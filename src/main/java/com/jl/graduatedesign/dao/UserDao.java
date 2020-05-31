@@ -6,4 +6,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface UserDao {
     User login(String code,String password);
+
+    String getUserNameById(Long userId);
 }

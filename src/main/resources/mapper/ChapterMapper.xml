@@ -12,4 +12,16 @@
         select * from t_chapter where book_id = #{bookId} order by series asc
     </select>
 
+    <select id="getChapterInfoById" resultMap="baseResultMap">
+        select * from t_chapter where chapter_id = #{chapterId}
+    </select>
+
+    <select id="getChapterByBookIdAndSeries" resultMap="baseResultMap">
+        select * from t_chapter where book_id = #{bookId} and series = #{series}
+    </select>
+
+    <select id="getContent" resultType="java.lang.String">
+        select content from t_chapter_content where chapter_id = #{chapterId}
+    </select>
+
 </mapper>

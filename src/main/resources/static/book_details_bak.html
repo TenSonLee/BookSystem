@@ -103,7 +103,7 @@
         <li class="evaluation-item" style="width:750px;height:150px;margin-left:50px">
           <div class="layui-container" >
             <div class="evaluation_head">
-                <span>{{ index+1 }}楼</span>
+                <span>{{ evaluation.index }}楼</span>
                 <span style="color:blue;margin-left:20px">{{ evaluation.userName }}</span>
                 <span style="margin-left:50px" class="evaluation_rate" id="evaluation_rate_{{ index }}" data="{{ evaluation.score }}"></span>
                 <span style="color:grey;margin-left:50px;">{{ evaluation.time }}最后编辑</span>                    
@@ -423,12 +423,11 @@
 
             // 本书评价分页初始化
             paging.init({
-                url: 'test.json', //地址
-                type: 'GET',
+                url: 'http://localhost:8080/bookSystem/getPagedEvaluationList', //地址
+                type: 'POST',
                 elem: '#evaluation_view', //内容容器
                 params: { //发送到服务端的参数
-                    t: Math.random(),
-                    action: 'GetXxx'
+                    bookId: bookId
                 },
                 tempElem: '#book-evaluation', //模块容器
                 pageConfig: { //分页参数配置

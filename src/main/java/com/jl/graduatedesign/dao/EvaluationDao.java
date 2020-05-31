@@ -3,6 +3,8 @@ package com.jl.graduatedesign.dao;
 import com.jl.graduatedesign.entity.Evaluation;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface EvaluationDao {
     Evaluation getEvaluationByUserAndBookId(Long userId,Long bookId);
@@ -14,4 +16,8 @@ public interface EvaluationDao {
     int insertEvaluation(Evaluation evaluation);
 
     int deleteEvaluation(Long userId,Long bookId);
+
+    List<Evaluation> queryPagedEvaluationList(Long bookId,Integer pageIndex,Integer pageSize);
+
+    int countEvaluationNum(Long bookId);
 }

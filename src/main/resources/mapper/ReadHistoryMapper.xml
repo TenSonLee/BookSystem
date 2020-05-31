@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jl.graduatedesign.dao.ReadHistoryDao">
+
+    <resultMap id="baseResultMap" type="com.jl.graduatedesign.entity.ReadHistory">
+        <result column="history_id"  property="historyId" />
+        <result column="book_id"  property="bookId" />
+        <result column="chapter_id"  property="chapterId" />
+        <result column="user_id"  property="userId" />
+    </resultMap>
+
+    <select id="getHistoryByBookAndUserId" resultMap="baseResultMap">
+        select * from t_history where book_id = #{bookId} and user_id = #{userId}
+    </select>
+
+    <update id="updateHistory" parameterType="com.jl.graduatedesign.entity.ReadHistory">
+        update t_history
+        <set>
+            <if test="userId != null">user_id=#{userId},</if>
+            <if test="bookId != null">book_id=#{bookId},</if>
+            <if test="chapterId != null">chapter_id=#{chapterId},</if>
+            <if test="time != null">`time`=#{time}</if>
+        </set>
+        where history_id = #{historyId}
+    </update>
+
+    <insert id="insertHistory" parameterType="com.jl.graduatedesign.entity.ReadHistory" useGeneratedKeys="true" keyProperty="historyId">
+        insert into t_history (user_id,book_id,chapter_id,time)
+        values (#{userId},#{bookId},#{chapterId},#{time})
+    </insert>
+
+    <delete id="deleteHistory">
+        delete from t_history where user_id = #{userId} and book_id = #{bookId}
+    </delete>
+
+    <delete id="deleteHistoryById">
+        delete from t_history where history_id = #{historyId}
+    </delete>
+
+    <delete id="deleteUserAllHistory">
+        delete from t_history where user_id = #{userId}
+    </delete>
+
+    <select id="getUserAllHistory" resultMap="baseResultMap">
+        select * from t_history where user_id = #{userId}
+    </select>
+</mapper>

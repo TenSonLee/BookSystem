@@ -10,8 +10,43 @@
         <result column="recommend_num"  property="recommendNum" />
     </resultMap>
 
+
     <select id="getBookById" resultMap="baseResultMap">
         select * from t_book where book_id = #{bookId}
+    </select>
+    
+    <select id="getPagedBookListByCondition" resultMap="baseResultMap" parameterType="com.jl.graduatedesign.vo.PagedBookSearchCondition">
+        select * from t_book where 1=1 and
+        <if test="categoryId != 0">
+           book_category_id = #{categoryId} and
+        </if>
+        title like '%${keyword}%'
+        <if test="sortOrder == 1">
+          order by favorites_num desc
+        </if>
+        <if test="sortOrder == 2">
+            order by recommend_num desc
+        </if>
+        limit ${(pageIndex-1)*pageSize},${pageSize}
+    </select>
+
+    <select id="getPagedBookListFromFavorites" resultMap="baseResultMap">
+        select * from t_book b,t_book_favorites_relationship f
+        where f.favorites_id = #{favoritesId} and f.book_id = b.book_id
+        limit ${(pageIndex-1)*pageSize},${pageSize}
+    </select>
+
+    <select id="countBookByCondition" resultType="java.lang.Integer" parameterType="com.jl.graduatedesign.vo.PagedBookSearchCondition">
+        select count(*) from t_book where 1=1 and
+        <if test="categoryId != 0">
+            book_category_id = #{categoryId} and
+        </if>
+        title like '%${keyword}%'
+    </select>
+
+    <select id="countFavoritesBooks" resultType="java.lang.Integer">
+        select count(*) from t_book b,t_book_favorites_relationship f
+        where f.favorites_id = #{favoritesId} and f.book_id = b.book_id
     </select>
 
     <update id="updateBook" parameterType="com.jl.graduatedesign.entity.Book">

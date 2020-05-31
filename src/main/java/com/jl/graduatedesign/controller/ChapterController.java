@@ -1,8 +1,10 @@
 package com.jl.graduatedesign.controller;
 
 import com.jl.graduatedesign.entity.Chapter;
+import com.jl.graduatedesign.entity.ReadHistory;
 import com.jl.graduatedesign.service.ChapterService;
 import com.jl.graduatedesign.vo.CommonResponse;
+import com.jl.graduatedesign.vo.ReadChapterData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,6 +32,27 @@ public class ChapterController {
         commonResponse.setCode("0");
         commonResponse.setMsg("操作成功");
         commonResponse.setData(chapterList);
+        return commonResponse;
+    }
+
+    @RequestMapping(value = "/readChapterContent")
+    public CommonResponse readChapterContent(@RequestBody ReadHistory readHistory){
+        CommonResponse<ReadChapterData> commonResponse = new CommonResponse<>();
+        ReadChapterData readChapterData = chapterService.readChapter(readHistory.getUserId(), readHistory.getChapterId());
+        commonResponse.setCode("0");
+        commonResponse.setMsg("操作成功");
+        commonResponse.setData(readChapterData);
+        return commonResponse;
+    }
+
+    @RequestMapping(value = "/startRead")
+    public CommonResponse startRead(Long bookId){
+        CommonResponse<Long> commonResponse = new CommonResponse<>();
+        //获取图书的第一章
+        Chapter chapter = chapterService.getChapterByBookIdAndSeries(bookId, 1);
+        commonResponse.setCode("0");
+        commonResponse.setMsg("操作成功");
+        commonResponse.setData(chapter.getChapterId());
         return commonResponse;
     }
 }

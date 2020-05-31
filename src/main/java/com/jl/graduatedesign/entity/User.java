@@ -11,6 +11,9 @@ public class User {
 
     private Byte type;
 
+    @Column(name = "user_name")
+    private String userName;
+
     private String code;
 
     private String password;
@@ -24,6 +27,30 @@ public class User {
     private String email;
 
     private Long version;
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "userId=" + userId +
+                ", type=" + type +
+                ", userName='" + userName + '\'' +
+                ", code='" + code + '\'' +
+                ", password='" + password + '\'' +
+                ", sex=" + sex +
+                ", birthday=" + birthday +
+                ", tel='" + tel + '\'' +
+                ", email='" + email + '\'' +
+                ", version=" + version +
+                '}';
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
 
     public Long getUserId() {
         return userId;
@@ -95,20 +122,5 @@ public class User {
 
     public void setVersion(Long version) {
         this.version = version;
-    }
-
-    @Override
-    public String toString() {
-        return "User{" +
-                "userId=" + userId +
-                ", type=" + type +
-                ", code='" + code + '\'' +
-                ", password='" + password + '\'' +
-                ", sex=" + sex +
-                ", birthday=" + birthday +
-                ", tel='" + tel + '\'' +
-                ", email='" + email + '\'' +
-                ", version=" + version +
-                '}';
     }
 }

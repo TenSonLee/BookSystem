@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>图书检索页</title>
+    <link rel="stylesheet" href="./layui/css/layui.css">
+    <!--引入layui文件，-->
+    <link rel="stylesheet" href="./css/base.css">
+    <!--加入自己的CSS样式-->
+</head>
+
+<body class="layui-layout-body">
+    <div class="layui-layout layui-layout-admin">
+        <div class="layui-header">
+            <div class="layui-logo">图书推荐系统</div>
+            <!-- 头部区域（可配合layui已有的水平导航） -->
+            <ul class="layui-nav layui-layout-right">
+                <li class="layui-nav-item"><a href="index.html">首页</a></li>
+                <li class="layui-nav-item"><a href="">我的收藏</a></li>
+                <li class="layui-nav-item"><a href="">阅读记录</a></li>
+                <li class="layui-nav-item"><a href="">历史评价</a></li>
+                <li class="layui-nav-item"><a href="">个人中心</a></li>
+            </ul>
+        </div>
+
+        <div class="layui-body">
+            <div style="margin-left: 25%;margin-top: 30px;">
+                <div class="layui-input-inline">
+                    <!-- //采用inline表示可以继续放 -->
+                    <input type="text" id="searchTitle" name="bookTitle" autocomplete="off" class="layui-input"
+                        style="width: 250px;">
+                </div>
+                <button class="layui-btn " id="search" style="background-color: rgb(141, 47, 47);">搜
+                    索</button>
+            </div>
+
+            <div id="categoryView" style="width: 750px;margin-left: 10%;margin-top: 20px;
+                    background-color:rgb(247, 246, 242);line-height: 250%;font-size:larger;">
+            </div>
+
+            <div
+                style="background-color:rgb(247, 246, 242);width: 750px;height: 20px;margin-left: 10%;margin-top: 20px;">
+                <a id="sortOrder0" style="margin:5px 0px 0px 15px" href="javascript:"
+                    onclick="javascript: selectSortOrder(0)">搜索相关性</a>
+                <a id="sortOrder1" style="margin:5px 0px 0px 15px" href="javascript:"
+                    onclick="javascript: selectSortOrder(1)">总收藏</a>
+                <a id="sortOrder2" style="margin:5px 0px 0px 15px" href="javascript:"
+                    onclick="javascript: selectSortOrder(2)">总推荐</a>
+            </div>
+
+            <div>
+                <div id="bookListView"></div>
+                <div id="paged" style="margin-left: 15%;"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function selectSortOrder(order) {
+            replaceParamVal('sortOrder', order)
+        }
+
+        function selectCategory(category) {
+            replaceParamVal('category', category)
+        }
+
+
+    </script>
+
+
+
+    <script src="./layui/layui.js"></script>
+    <script src="./js/urlParam.js"></script>
+
+    <script id="category-list" type="text/html">
+        <h3>分类:</h3>
+        <ul class="category-list">
+            <li class="category-item" style="display: inline">
+                <a id="categoryTotal" style="margin:5px 0px 0px 15px" href="javascript:"
+                onclick="javascript: selectCategory(0)">全部</a>
+            </li>
+            {{#  layui.each(d.list, function(index, category){ }}
+            <li class="category-item" style="display: inline">
+                <a id="category{{ category.categoryId }}" style="margin:5px 0px 0px 15px" href="javascript:"
+                onclick="javascript: selectCategory({{ category.categoryId }})">{{ category.name }}</a>
+            </li>
+            {{#  }); }}
+          </ul>
+    </script>
+
+    <script id="book-list" type="text/html">
+        <ul class="book-list">
+          {{#  layui.each(d.list, function(index, book){ }}
+          <li class="book-item">
+            <div class="layui-container" style="width:750px">
+              <div class="layui-row">
+                <div class="layui-col-md3 book-item-cover">
+                  <span>{{ book.cover }}</span>
+                </div>
+                <div class="layui-col-md6 book-item-content">
+                  <p style="margin-top:5px">{{ book.title }}</p>
+                  <p style="margin-top:5px">作者： {{ book.author }}</p>
+                  <p style="margin-top:10px;width:300px">简介: {{ book.desc }}</p>
+                </div>
+                <div class="layui-col-md3 book-item-operator">
+                  <button style="margin-top:100px" onclick="location.href='./book_details.html?bookId={{ book.bookId }}'">书籍详情</button>
+                </div>
+              </div>
+            </div>
+          </li>
+          {{#  }); }}
+          {{#  if(d.list.length === 0){ }}
+            无数据
+          {{#  } }} 
+        </ul>
+      </script>
+
+    <script>
+        layui.config({
+            base: 'js/'
+        }).use(['jquery', 'form', 'layer', 'element', 'laytpl', 'rate', 'paging'], function () {
+            var element = layui.element;
+            var $ = layui.jquery;
+            var laytpl = layui.laytpl;
+            var form = layui.form;
+            var layer = layui.layer;
+            var rate = layui.rate;
+            var paging = layui.paging();
+
+            var userId = sessionStorage.getItem('userId');
+            if (userId == null) {
+                userId = 1;
+            }
+
+            var categoryListData = {}
+
+            $('#search').click(function () {
+                var searchTitle = $('#searchTitle').val()
+                replaceParamVal('keyword', searchTitle)
+            })
+
+            //初始化时获取类别数据
+            $.ajax({
+                url: 'http://localhost:8080/bookSystem/getBookCategory',
+                type: 'get',
+                dataType: 'json',
+                contentType: 'application/json',
+                success: function (res) {
+                    if (res.code == 0) {
+                        //res.code == 0,表示用户输入成功，1表示失败               
+                        categoryListData.list = res.data;
+
+                        var categoryList = document.getElementById('category-list')
+                        var getCategoryListTpl = categoryList.innerHTML
+                            , categoryView = document.getElementById('categoryView');
+                        laytpl(getCategoryListTpl).render(categoryListData, function (html) {
+                            categoryView.innerHTML = html;
+                        });
+
+                        renderInit();
+
+                        //加载分页的图书检索数据
+                        paging.init({
+                            url: 'http://localhost:8080/bookSystem/queryBookListByCondition', //地址
+                            type: 'POST',
+                            elem: '#bookListView', //内容容器
+                            params: { //发送到服务端的参数
+                                sortOrder: getRequest().sortOrder,
+                                categoryId: getRequest().category,
+                                keyword: $('#searchTitle').val()
+                            },
+                            tempElem: '#book-list', //模块容器
+                            pageConfig: { //分页参数配置
+                                elem: 'paged', //分页容器
+                                pageSize: 5 //分页大小
+                            },
+                            success: function () { //渲染成功的回调
+                            }
+                        });
+
+
+                    } else {
+                        //不等于0时填出的内容
+                        layer.msg(res.msg)
+                    }
+                }
+            })
+
+            var bookListData = {}
+
+            function renderInit() {
+                var sortOrder = getRequest().sortOrder;
+                var categoryId = getRequest().category;
+                var kw = getRequest().keyword;
+
+                var sortOrderId = 'sortOrder' + sortOrder
+                var categoryLinkId = 'category' + categoryId;
+                if (categoryId == 0) {
+                    categoryLinkId = 'categoryTotal'
+                }
+                console.log(categoryLinkId)
+
+                //调整分类栏对应的样式
+                $('#' + categoryLinkId).css({
+                    color: 'red'
+                })
+
+
+                //调整排序方式栏对应的样式
+                $('#' + sortOrderId).css({
+                    color: 'red'
+                })
+                var source = document.getElementById(sortOrderId).innerHTML;
+                console.log(source)
+                document.getElementById(sortOrderId).innerHTML = '<cite>' + source + '↓</cite>'
+                //文本框赋值
+                $('#searchTitle').val(kw)
+            }
+
+        });
+    </script>
+
+
+</body>
+
+</html>

@@ -12,6 +12,8 @@ public class Evaluation {
     @Column(name = "user_id")
     private Long userId;
 
+    private String userName;
+
     @Column(name = "book_id")
     private Long bookId;
 
@@ -21,16 +23,36 @@ public class Evaluation {
 
     private Date time;
 
+    private Integer index;
+
     @Override
     public String toString() {
         return "Evaluation{" +
                 "evaluationId=" + evaluationId +
                 ", userId=" + userId +
+                ", userName='" + userName + '\'' +
                 ", bookId=" + bookId +
                 ", score=" + score +
                 ", content='" + content + '\'' +
                 ", time=" + time +
+                ", index=" + index +
                 '}';
+    }
+
+    public Integer getIndex() {
+        return index;
+    }
+
+    public void setIndex(Integer index) {
+        this.index = index;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 
     public Long getEvaluationId() {

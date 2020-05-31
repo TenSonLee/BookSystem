@@ -4,9 +4,14 @@
 
     <resultMap id="baseResultMap" type="com.jl.graduatedesign.entity.User">
         <result column="user_id"  property="userId" />
+        <result column="user_name" property="userName"/>
     </resultMap>
 
     <select id="login" resultMap="baseResultMap">
         select * from t_user where code = #{code} and password = #{password}
+    </select>
+
+    <select id="getUserNameById" resultType="java.lang.String">
+        select user_name from t_user where user_id = #{userId}
     </select>
 </mapper>

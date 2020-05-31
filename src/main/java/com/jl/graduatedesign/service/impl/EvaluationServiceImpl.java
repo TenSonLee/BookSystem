@@ -2,6 +2,7 @@ package com.jl.graduatedesign.service.impl;
 
 import com.jl.graduatedesign.dao.BookDao;
 import com.jl.graduatedesign.dao.EvaluationDao;
+import com.jl.graduatedesign.dao.UserDao;
 import com.jl.graduatedesign.entity.Book;
 import com.jl.graduatedesign.entity.Evaluation;
 import com.jl.graduatedesign.service.EvaluationService;
@@ -10,12 +11,15 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
+import java.util.List;
 
 @Component
 public class EvaluationServiceImpl implements EvaluationService {
     private EvaluationDao evaluationDao;
 
     private BookDao bookDao;
+
+    private UserDao userDao;
 
     @Autowired
     public void setEvaluationDao(EvaluationDao evaluationDao) {
@@ -25,6 +29,11 @@ public class EvaluationServiceImpl implements EvaluationService {
     @Autowired
     public void setBookDao(BookDao bookDao) {
         this.bookDao = bookDao;
+    }
+
+    @Autowired
+    public void setUserDao(UserDao userDao) {
+        this.userDao = userDao;
     }
 
     @Override
@@ -73,5 +82,23 @@ public class EvaluationServiceImpl implements EvaluationService {
             throw new Exception("删除评价操作未正常完成");
         }
         return false;
+    }
+
+    @Override
+    public List<Evaluation> getPagedEvaluationList(Long bookId, Integer pageIndex, Integer pageSize) {
+        List<Evaluation> evaluationList = evaluationDao.queryPagedEvaluationList(bookId, pageIndex, pageSize);
+        int i = 1;
+        for (Evaluation e:
+             evaluationList) {
+            e.setUserName(userDao.getUserNameById(e.getUserId()));
+            e.setIndex((pageIndex-1)*pageSize+i);
+            i++;
+        }
+        return evaluationList;
+    }
+
+    @Override
+    public int countEvaluationByBookId(Long bookId) {
+        return evaluationDao.countEvaluationNum(bookId);
     }
 }

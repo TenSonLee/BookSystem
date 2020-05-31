@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>我的收藏页</title>
+    <link rel="stylesheet" href="./layui/css/layui.css">
+    <!--引入layui文件，-->
+    <link rel="stylesheet" href="./css/base.css">
+    <!--加入自己的CSS样式-->
+</head>
+
+<body class="layui-layout-body">
+    <div class="layui-layout layui-layout-admin">
+        <div class="layui-header">
+            <div class="layui-logo">图书推荐系统</div>
+            <!-- 头部区域（可配合layui已有的水平导航） -->
+            <ul class="layui-nav layui-layout-right">
+                <li class="layui-nav-item"><a href="index.html">首页</a></li>
+                <li class="layui-nav-item layui-this"><a href="">我的收藏</a></li>
+                <li class="layui-nav-item"><a href="">阅读记录</a></li>
+                <li class="layui-nav-item"><a href="">历史评价</a></li>
+                <li class="layui-nav-item"><a href="">个人中心</a></li>
+            </ul>
+        </div>
+
+        <div class="layui-body site-inline" style="margin-top: 20px;">
+
+            <div class="site-tree" style="background-color: rgb(247, 247, 247);">
+                <div id="favoritesListView"></div>
+            </div>
+
+            <div class="site-content" style="background-color: rgb(247, 247, 247);width: 750px;">
+                <div id="bookListView" ></div>
+                <div id="paged" style="width: 300px;"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <script id="favorites-list" type="text/html">
+        <ul class="layui-tree">
+            <li>
+                <h2 style="display: inline;">我的收藏夹   </h2>
+                <button type="button" class="layui-btn layui-btn-xs">
+                  <i class="layui-icon">&#xe608;</i> 新增
+                </button>
+            </li>
+            {{#  layui.each(d.list, function(index, favorites){ }}
+                <li style="margin:20px"><a id="favorites{{ favorites.favoritesId }}" onclick="javascript: selectFavorites({{ favorites.favoritesId }})">{{ favorites.name }}</a></li>
+            {{#  }); }}
+        </ul>
+    </script>
+
+    <script id="book-list" type="text/html">
+        <div style="margin-left: 70%">
+            <button>清空收藏夹</button>
+            <button>清空并删除收藏夹</button>
+        </div>
+        <ul class="book-list">
+            {{#  layui.each(d.list, function(index, book){ }}
+            <li class="book-item">
+              <div>
+                <div class="layui-row">
+  
+                  <div class="layui-col-md4 book-item-cover">
+                    <span>{{ book.cover }}</span>
+                  </div>
+  
+                  <div class="layui-col-md6 book-item-content">
+                    <p style="margin-top:5px">{{ book.title }}</p>
+                    <p style="margin-top:5px">作者： {{ book.author }}</p>
+                    <p style="margin-top:10px;width:300px">简介: {{ book.desc }}</p>
+  
+                    <div class="book-item-operator" style="margin-left:55px;margin-top: 40px">
+                      <button  style="margin-left: 20px" onclick="location.href='./book_details.html?bookId={{ book.bookId }}'">书籍详情</button>
+                      <button  style="margin-left: 20px" onclick="location.href='./read.html?chapterId={{ book.chapterId }}'">移动到</button>
+                      <button  style="margin-left: 20px" id="deletebook{{ book.bookId }}">移除本书</button>
+                    </div>
+                  </div>     
+                </div>
+              </div>
+            </li>
+  
+            <HR style="FILTER: progid:DXImageTransform.Microsoft.Shadow(color:#987cb9,direction:145,strength:15)" width="80%" color=#987cb9 SIZE=1>
+            {{#  }); }}
+            {{#  if(d.list.length === 0){ }}
+              无数据
+            {{#  } }} 
+          </ul>
+
+    </script>
+
+    <script>
+        function selectFavorites(favoritesId) {
+            replaceParamVal('favoritesId', favoritesId);
+        }
+    </script>
+
+    <script src="./layui/layui.js"></script>
+    <script src="./js/urlParam.js"></script>
+
+
+    <script>
+        layui.config({
+            base: 'js/'
+        }).use(['jquery', 'form', 'layer', 'element', 'laytpl', 'rate', 'paging'], function () {
+            var element = layui.element;
+            var $ = layui.jquery;
+            var laytpl = layui.laytpl;
+            var form = layui.form;
+            var layer = layui.layer;
+            var rate = layui.rate;
+            var paging = layui.paging();
+
+            var userId = sessionStorage.getItem('userId');
+            if (userId == null) {
+                userId = 1;
+            }
+
+            //初始化时获取收藏夹列表
+            $.ajax({
+                url: 'http://localhost:8080/bookSystem/getUserFavoritesList',
+                type: 'post',
+                dataType: 'json',
+                data: {
+                    userId: userId
+                },
+                success: function (res) {
+                    if (res.code == 0) {
+                        //res.code == 0,表示用户输入成功，1表示失败               
+                        favoritesListData.list = res.data;
+
+                        var favoritesList = document.getElementById('favorites-list')
+                        var favoritesListTpl = favoritesList.innerHTML
+                            , favoritesListView = document.getElementById('favoritesListView');
+                        laytpl(favoritesListTpl).render(favoritesListData, function (html) {
+                            favoritesListView.innerHTML = html;
+                        })
+
+
+                        renderInit();
+
+                        //加载分页的收藏夹图书数据
+                        paging.init({
+                            url: 'http://localhost:8080/bookSystem/queryBookListFromFavorites', //地址
+                            type: 'POST',
+                            elem: '#bookListView', //内容容器
+                            params: { //发送到服务端的参数
+                                favoritesId: getRequest().favoritesId
+                            },
+                            tempElem: '#book-list', //模块容器
+                            pageConfig: { //分页参数配置
+                                elem: 'paged', //分页容器
+                                pageSize: 5 //分页大小
+                            },
+                            success: function () { //渲染成功的回调
+                            }
+                        });
+
+
+                    } else {
+                        //不等于0时填出的内容
+                        layer.msg(res.msg)
+                    }
+                }
+            })
+
+            var favoritesListData = {
+                "list": [
+                    {
+                        favoritesId: 1,
+                        userId: 1,
+                        name: '一号收藏夹'
+                    }
+                ]
+
+            }
+
+            var bookListData = {
+                "list": [{}, {}, {}, {}]
+            }
+
+            function renderInit() {
+                var favoritesId = getRequest().favoritesId;
+
+                var favoritesLinkId = 'favorites' + favoritesId;
+
+                console.log(favoritesLinkId)
+
+                //调整分类栏对应的样式
+                $('#' + favoritesLinkId).css({
+                    color: 'blue',
+                    'font-size': '14px'
+                })
+            }
+
+        });
+    </script>
+
+
+</body>
+
+</html>

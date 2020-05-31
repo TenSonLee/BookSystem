@@ -8,4 +8,10 @@ import java.util.List;
 @Repository
 public interface ChapterDao {
     List<Chapter> queryChapterListByBookId(Long bookId);
+
+    Chapter getChapterInfoById(Long chapterId);
+
+    String getContent(Long chapterId);
+
+    Chapter getChapterByBookIdAndSeries(Long bookId,Integer series);
 }
