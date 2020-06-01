@@ -19,7 +19,7 @@
             <ul class="layui-nav layui-layout-right">
                 <li class="layui-nav-item"><a href="index.html">首页</a></li>
                 <li class="layui-nav-item layui-this"><a href="">我的收藏</a></li>
-                <li class="layui-nav-item"><a href="">阅读记录</a></li>
+                <li class="layui-nav-item"><a href="./read_history.html">阅读记录</a></li>
                 <li class="layui-nav-item"><a href="">历史评价</a></li>
                 <li class="layui-nav-item"><a href="">个人中心</a></li>
             </ul>
@@ -32,7 +32,7 @@
             </div>
 
             <div class="site-content" style="background-color: rgb(247, 247, 247);width: 750px;">
-                <div id="bookListView" ></div>
+                <div id="bookListView"></div>
                 <div id="paged" style="width: 300px;"></div>
             </div>
         </div>
@@ -43,7 +43,7 @@
         <ul class="layui-tree">
             <li>
                 <h2 style="display: inline;">我的收藏夹   </h2>
-                <button type="button" class="layui-btn layui-btn-xs">
+                <button type="button" class="layui-btn layui-btn-xs" id="createNewFavorites">
                   <i class="layui-icon">&#xe608;</i> 新增
                 </button>
             </li>
@@ -55,8 +55,8 @@
 
     <script id="book-list" type="text/html">
         <div style="margin-left: 70%">
-            <button>清空收藏夹</button>
-            <button>清空并删除收藏夹</button>
+            <button onclick="javascript: clearFavorites()">清空收藏夹</button>
+            <button onclick="javascript: deleteFavorites()">清空并删除收藏夹</button>
         </div>
         <ul class="book-list">
             {{#  layui.each(d.list, function(index, book){ }}
@@ -75,8 +75,8 @@
   
                     <div class="book-item-operator" style="margin-left:55px;margin-top: 40px">
                       <button  style="margin-left: 20px" onclick="location.href='./book_details.html?bookId={{ book.bookId }}'">书籍详情</button>
-                      <button  style="margin-left: 20px" onclick="location.href='./read.html?chapterId={{ book.chapterId }}'">移动到</button>
-                      <button  style="margin-left: 20px" id="deletebook{{ book.bookId }}">移除本书</button>
+                      <button  style="margin-left: 20px" class="moveBookButton" data="{{ book.bookId }}">移动到</button>
+                      <button  style="margin-left: 20px" id="removeBook{{ book.bookId }}" onclick="javascript: removeBook({{ book.bookId }})">移除本书</button>
                     </div>
                   </div>     
                 </div>
@@ -92,9 +92,78 @@
 
     </script>
 
+    <script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.js"></script>
+
     <script>
         function selectFavorites(favoritesId) {
             replaceParamVal('favoritesId', favoritesId);
+        }
+
+        function removeBook(bookId) {
+            $.ajax({
+                url: 'http://localhost:8080/bookSystem/removeBookFromFavorites',
+                type: 'post',
+                dataType: 'json',
+                data: {
+                    bookId: bookId,
+                    favoritesId: getRequest().favoritesId
+                },
+                success: function (res) {
+                    if (res.code == 0) {
+                        location.href = "./favorites.html?favoritesId=" + getRequest().favoritesId
+                    } else {
+                        //不等于0时填出的内容
+                        layer.msg(res.msg)
+                    }
+                }
+            })
+        }
+
+        function clearFavorites() {
+            $.ajax({
+                url: 'http://localhost:8080/bookSystem/clearFavorites',
+                type: 'post',
+                dataType: 'json',
+                data: {
+                    favoritesId: getRequest().favoritesId
+                },
+                success: function (res) {
+                    if (res.code == 0) {
+                        location.href = "./favorites.html?favoritesId=" + getRequest().favoritesId
+                    } else {
+                        //不等于0时填出的内容
+                        layer.msg(res.msg)
+                    }
+                }
+            })
+
+        }
+
+        var userId = sessionStorage.getItem('userId');
+        if (userId == null) {
+            userId = 1;
+        }
+
+        //删除收藏夹后需返回之后定位的收藏夹id
+        function deleteFavorites() {
+            $.ajax({
+                url: 'http://localhost:8080/bookSystem/deleteFavorites',
+                type: 'post',
+                dataType: 'json',
+                data: {
+                    userId: userId,
+                    favoritesId: getRequest().favoritesId
+                },
+                success: function (res) {
+                    if (res.code == 0) {
+                        location.href = "./favorites.html?favoritesId=" + res.data;
+                    } else {
+                        //不等于0时填出的内容
+                        layer.msg(res.msg)
+                    }
+                }
+            })
+
         }
     </script>
 
@@ -132,6 +201,10 @@
                         //res.code == 0,表示用户输入成功，1表示失败               
                         favoritesListData.list = res.data;
 
+                        if(getRequest().favoritesId == 0){
+                            location.href = './favorites.html?favoritesId='+favoritesListData.list[0].favoritesId
+                        }
+
                         var favoritesList = document.getElementById('favorites-list')
                         var favoritesListTpl = favoritesList.innerHTML
                             , favoritesListView = document.getElementById('favoritesListView');
@@ -156,10 +229,23 @@
                                 pageSize: 5 //分页大小
                             },
                             success: function () { //渲染成功的回调
+                                $('.moveBookButton').each(function () {
+                                    var o = this;
+                                    var bookId = $(o).attr('data');
+
+                                    $(o).click(function () {
+                                        moveBookData.bookId = bookId;
+
+                                        layer.open({
+                                            title: '书籍移动',
+                                            area: '600px',
+                                            type: 1,
+                                            content: $('#moveBookArea')
+                                        })
+                                    })
+                                })
                             }
                         });
-
-
                     } else {
                         //不等于0时填出的内容
                         layer.msg(res.msg)
@@ -167,16 +253,70 @@
                 }
             })
 
-            var favoritesListData = {
-                "list": [
-                    {
-                        favoritesId: 1,
-                        userId: 1,
-                        name: '一号收藏夹'
-                    }
-                ]
+            $('#submitCreate').click(function () {
+                var name = $('#createFavoritesText').val();
+                var request = {
+                    userId: userId,
+                    name: name
+                }
 
+                $.ajax({
+                    url: 'http://localhost:8080/bookSystem/addFavorites',
+                    type: 'post',
+                    dataType: 'json',
+                    data: request,
+                    success: function (res) {
+                        if (res.code == 0) {
+                            //res.code == 0,表示用户输入成功，1表示失败               
+                            layer.msg("创建成功")
+                            layer.closeAll('page')
+                            location.href = "./favorites.html?favoritesId=" + getRequest().favoritesId
+                        } else {
+                            //不等于0时填出的内容
+                            layer.msg(res.msg)
+                        }
+                    }
+                })
+            })
+
+            $('#cancelCreate').click(function () {
+                layer.closeAll()
+            })
+
+            $('#submitMove').click(function () {
+                var toFavoritesId = $('#select').val();
+                moveBookData.toFavoritesId = toFavoritesId;
+
+                $.ajax({
+                    url: 'http://localhost:8080/bookSystem/moveBookToAnotherFavorites',
+                    type: 'post',
+                    dataType: 'json',
+                    data: moveBookData,
+                    success: function (res) {
+                        if (res.code == 0) {
+                            //res.code == 0,表示用户输入成功，1表示失败               
+                            layer.msg("移动成功")
+                            layer.closeAll('page')
+                            location.href = "./favorites.html?favoritesId=" + getRequest().favoritesId
+                        } else {
+                            //不等于0时填出的内容
+                            layer.msg(res.msg)
+                        }
+                    }
+                })
+            })
+
+            $('#cancelMove').click(function () {
+                layer.closeAll()
+            })
+
+            var moveBookData = {
+                bookId: 1,
+                fromFavoritesId: getRequest().favoritesId,
+                toFavoritesId: 1
             }
+
+            var favoritesListData = {}
 
             var bookListData = {
                 "list": [{}, {}, {}, {}]
@@ -194,10 +334,59 @@
                     color: 'blue',
                     'font-size': '14px'
                 })
+
+                $('#createNewFavorites').click(function () {
+                    console.log('点击了新增按钮')
+                    layer.open({
+                        title: '新建收藏夹',
+                        area: '600px',
+                        type: 1,
+                        content: $('#createFavoritesArea')
+                    })
+                })
+
+                var options = ''
+                favoritesListData.list.forEach(favorites => {
+                    options += "<option value='" + favorites.favoritesId + "'>" + favorites.name + "</option>";
+                });
+                console.log(options)
+                $('#select').append(options)
+                form.render()
             }
 
         });
     </script>
+
+    <div id="createFavoritesArea" style="display: none;">
+        <div id="createFavoritesContent">
+            <label class="layui-form-label">收藏夹名称</label>
+            <div class="layui-input-block" style="width: 450px;">
+                <input type="text" id="createFavoritesText" name="createFavoritesText" autocomplete="off"
+                    class="layui-input" style="width: 250px;">
+            </div>
+        </div>
+        <div id="createFavoritesOperator" style="width: 400px;margin-left: 35%;">
+            <button class="layui-btn layui-btn-sm" style="margin-top:40px" id="submitCreate">创建</button>
+            <button class="layui-btn layui-btn-sm" style="margin-top:40px" id="cancelCreate">取消</button>
+        </div>
+    </div>
+
+    <div id="moveBookArea" style="display: none;height: 200px;">
+        <div id="moveBookContent">
+            <label class="layui-form-label">选择移往的收藏夹</label>
+            <div class="layui-input-block" style="width: 450px;">
+                <div class="layui-form">
+                    <select name="favorites" lay-verify="" lay-filter="test" id="select">
+                        <option value="">请选择一个收藏夹</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div id="moveBookOperator" style="width: 400px;margin-left: 35%;">
+            <button class="layui-btn layui-btn-sm" style="margin-top:40px" id="submitMove">移动</button>
+            <button class="layui-btn layui-btn-sm" style="margin-top:40px" id="cancelMove">取消</button>
+        </div>
+    </div>
 
 
 </body>

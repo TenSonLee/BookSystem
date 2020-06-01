@@ -18,8 +18,8 @@
             <!-- 头部区域（可配合layui已有的水平导航） -->
             <ul class="layui-nav layui-layout-right">
                 <li class="layui-nav-item"><a href="index.html">首页</a></li>
-                <li class="layui-nav-item"><a href="">我的收藏</a></li>
-                <li class="layui-nav-item"><a href="">阅读记录</a></li>
+                <li class="layui-nav-item"><a href="./favorites.html?favoritesId=0">我的收藏</a></li>
+                <li class="layui-nav-item"><a href="./read_history.html">阅读记录</a></li>
                 <li class="layui-nav-item"><a href="">历史评价</a></li>
                 <li class="layui-nav-item"><a href="">个人中心</a></li>
             </ul>
@@ -72,7 +72,7 @@
               <button class="layui-btn layui-btn-sm" style="margin-top:60px" id="cancelRecommend">取消推荐</button>     
               <button class="layui-btn layui-btn-sm" style="margin-top:60px" id="recommendBook">推荐本书</button>
               <button class="layui-btn layui-btn-sm" style="margin-top:60px" id="evaluateBook">评价本书</button>
-              <button class="layui-btn layui-btn-sm" style="margin-top:60px">加入收藏</button>
+              <button class="layui-btn layui-btn-sm" style="margin-top:60px" id="addToFavorites">加入收藏</button>
             </div>
           </div>
 
@@ -345,6 +345,10 @@
                             })
                         })
 
+
+
+
+
                         $('#submitEvaluate').click(function () {
                             myEvaluationData.content = $('#evaluationContentText').val()
                             var request = {
@@ -403,6 +407,73 @@
                                 }
                             })
                         })
+
+                        //获取用户收藏夹列表
+                        $.ajax({
+                            url: 'http://localhost:8080/bookSystem/getUserFavoritesList',
+                            type: 'post',
+                            dataType: 'json',
+                            data: {
+                                userId: userId
+                            },
+                            success: function (res) {
+                                if (res.code == 0) {
+                                    //res.code == 0,表示用户输入成功，1表示失败               
+                                    favoritesListData.list = res.data;
+
+                                    var options = ''
+                                    favoritesListData.list.forEach(favorites => {
+                                        options += "<option value='" + favorites.favoritesId + "'>" + favorites.name + "</option>";
+                                    });
+                                    console.log(options)
+                                    $('#select').append(options)
+                                    form.render()
+                                } else {
+                                    //不等于0时填出的内容
+                                    layer.msg(res.msg)
+                                }
+                            }
+                        })
+
+                        //点击加入收藏触发的事件
+                        $('#addToFavorites').click(function () {
+                            layer.open({
+                                title: '加入收藏',
+                                area: '600px',
+                                type: 1,
+                                content: $('#addBookToFavoritesArea')
+                            })
+                        })
+
+                        $('#submitAdd').click(function () {
+                            var request = {
+                                bookId: bookId,
+                                favoritesId: $('#select').val()
+                            }
+
+                            $.ajax({
+                                url: 'http://localhost:8080/bookSystem/addBookToFavorites',
+                                type: 'post',
+                                dataType: 'json',
+                                data: request,
+                                success: function (res) {
+                                    if (res.code == 0) {
+                                        //res.code == 0,表示用户输入成功，1表示失败               
+                                        layer.msg("添加成功")
+
+                                        layer.closeAll('page')
+                                    } else {
+                                        //不等于0时填出的内容
+                                        layer.msg(res.msg)
+                                    }
+                                }
+                            })
+
+                        })
+
+                        $('#cancelAdd').click(function () {
+                            layer.closeAll()
+                        })
                     } else {
                         //不等于0时填出的内容
                         layer.msg(res.msg)
@@ -451,7 +522,7 @@
                     elem: 'paged', //分页容器
                     pageSize: 2 //分页大小
                 },
-                success: function () { //渲染成功的回调
+                success: function (result) { //渲染成功的回调
                     //   评价列表里的评分控件
                     $('.evaluation_rate').each(function () {
                         o = this
@@ -479,6 +550,8 @@
             });
 
             var myEvaluationData = {}
+
+            var favoritesListData = {}
         });
     </script>
 
@@ -497,6 +570,23 @@
             <button class="layui-btn layui-btn-sm" style="margin-top:40px" id="submitEvaluate">发布</button>
             <button class="layui-btn layui-btn-sm" style="margin-top:40px" id="cancelEvaluate">取消</button>
             <button class="layui-btn layui-btn-sm" style="margin-top:40px" id="deleteEvaluate">删除</button>
+        </div>
+    </div>
+
+    <div id="addBookToFavoritesArea" style="display: none;height: 200px;">
+        <div id="addBookToFavorites">
+            <label class="layui-form-label">选择收藏夹</label>
+            <div class="layui-input-block" style="width: 450px;">
+                <div class="layui-form">
+                    <select name="favorites" lay-verify="" lay-filter="test" id="select">
+                        <option value="">请选择一个收藏夹</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div id="addBookToFavoritesOperator" style="width: 400px;margin-left: 35%;">
+            <button class="layui-btn layui-btn-sm" style="margin-top:40px" id="submitAdd">添加</button>
+            <button class="layui-btn layui-btn-sm" style="margin-top:40px" id="cancelAdd">取消</button>
         </div>
     </div>
 </body>

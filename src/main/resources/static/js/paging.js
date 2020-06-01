@@ -163,7 +163,7 @@ layui.define(['layer', 'laypage', 'laytpl'], function (exports) {
                         layui.laypage.render(defaults); //调用laypage组件渲染分页
                     }
                     if (_config.success) {
-                        _config.success(); //渲染成功
+                        _config.success(result); //渲染成功
                         console.log('渲染成功')
                     }
                 } else {

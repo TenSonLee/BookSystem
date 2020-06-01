@@ -11,4 +11,40 @@
     <select id="getFavoritesListByUserId" resultMap="baseResultMap">
         select * from t_favorites where user_id = #{userId}
     </select>
+
+    <select id="getRecordId" resultType="java.lang.Long">
+        select id from t_book_favorites_relationship where book_id = #{bookId} and favorites_id = #{favoritesId}
+    </select>
+
+    <delete id="removeBookFromFavorites">
+        delete from t_book_favorites_relationship where book_id = #{bookId} and favorites_id = #{favoritesId}
+    </delete>
+
+    <delete id="clearFavorites">
+        delete from t_book_favorites_relationship where favorites_id = #{favoritesId}
+    </delete>
+
+    <delete id="deleteFavorites">
+        delete from t_favorites where favorites_id = #{favoritesId}
+    </delete>
+
+    <insert id="insertFavorites"  parameterType="com.jl.graduatedesign.entity.Favorites" useGeneratedKeys="true" keyProperty="favoritesId">
+        insert into t_favorites (user_id,`name`)
+        values (#{userId},#{name})
+    </insert>
+
+    <insert id="insertBookToFavorites">
+        insert into t_book_favorites_relationship (book_id,favorites_id)
+        values (#{bookId},#{favoritesId})
+    </insert>
+
+    <update id="updateBookFavorites">
+        update t_book_favorites_relationship
+        <set>
+            <if test="favoritesId != null">favorites_id=#{favoritesId},</if>
+            <if test="bookId != null">book_id=#{bookId},</if>
+            <if test="time != null">`time`=#{time}</if>
+        </set>
+        where id = #{id}
+    </update>
 </mapper>

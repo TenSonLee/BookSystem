@@ -1,12 +1,16 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <title>图书推荐系统首页</title>
-  <link rel="stylesheet" href="./layui/css/layui.css"><!--引入layui文件，-->
-  <link rel="stylesheet" href="./css/base.css"><!--加入自己的CSS样式-->
+  <link rel="stylesheet" href="./layui/css/layui.css">
+  <!--引入layui文件，-->
+  <link rel="stylesheet" href="./css/base.css">
+  <!--加入自己的CSS样式-->
 </head>
+
 <body class="layui-layout-body">
   <div class="layui-layout layui-layout-admin">
     <div class="layui-header">
@@ -14,25 +18,25 @@
       <!-- 头部区域（可配合layui已有的水平导航） -->
       <ul class="layui-nav layui-layout-right">
         <li class="layui-nav-item layui-this"><a href="index.html">首页</a></li>
-        <li class="layui-nav-item"><a href="">我的收藏</a></li>
-        <li class="layui-nav-item"><a href="">阅读记录</a></li>
+        <li class="layui-nav-item"><a href="./favorites.html?favoritesId=0">我的收藏</a></li>
+        <li class="layui-nav-item"><a href="./read_history.html">阅读记录</a></li>
         <li class="layui-nav-item"><a href="">历史评价</a></li>
         <li class="layui-nav-item"><a href="">个人中心</a></li>
       </ul>
     </div>
-    
+
     <div class="layui-body">
       <!-- 内容主体区域 -->
       <div style="padding-top: 15px;" class="jumbotron">
         <h2 style="margin-left: 350px;margin-top: 20px;">智能图书推荐系统</h2>
-        <form class="layui-form bg-blue" action="" style="margin-left: 300px;margin-top: 50px;">                     
-          <div class="layui-form-item margin-top-10" >  
-              <div class="layui-input-inline" >
-                  <!-- //采用inline表示可以继续放 -->  
-                  <input type="bookname" name="bookname"  autocomplete="off" class="layui-input">      
-              </div>
-              <button class="layui-btn " lay-submit lay-filter="search">搜索</button>
-         </div>
+        <form class="layui-form bg-blue" action="" style="margin-left: 300px;margin-top: 50px;">
+          <div class="layui-form-item margin-top-10">
+            <div class="layui-input-inline">
+              <!-- //采用inline表示可以继续放 -->
+              <input type="text" name="bookTitle" id="searchTitle" autocomplete="off" class="layui-input">
+            </div>
+            <button class="layui-btn " onclick="javascript: searchBook()">搜索</button>
+          </div>
         </form>
       </div>
 
@@ -43,17 +47,33 @@
             <li>个性化图书推荐</li>
           </ul>
           <div class="layui-tab-content">
-            <div class="layui-tab-item layui-show" id="view"></div>
-            <div class="layui-tab-item">内容2</div>
+            <div class="layui-tab-item layui-show">
+              <div id="hotBookView"></div>
+              <div id="hotPaged"></div>
+            </div>
+            <div class="layui-tab-item">
+              <div id="personalBookView"></div>
+              <div id="personalPaged"></div>
+            </div>
           </div>
         </div>
       </div>
     </div>
-    
-  </div>
-<script src="./layui/layui.js"></script>
 
-<script id="book-list" type="text/html">
+  </div>
+  <script src="./layui/layui.js"></script>
+  <script src="./js/urlParam.js"></script>
+  <script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.js"></script>
+
+  <script>
+    function searchBook() {
+      var keyword = $('#searchTitle').val()
+      console.log(keyword)
+      location.href = "./book_search.html?sortOrder=0&category=0&keyword=" + keyword
+    }
+  </script>
+
+  <script id="book-list" type="text/html">
   <ul class="book-list">
     {{#  layui.each(d.list, function(index, book){ }}
     <li class="book-item">
@@ -80,29 +100,68 @@
   </ul>
 </script>
 
-<script>
-//JavaScript代码区域
-layui.use(['jquery','form','layer','element','laytpl'], function(){
-  var element = layui.element;
-  var $ = layui.jquery;
-  var laytpl = layui.laytpl;
-  var form = layui.form;
-  var layer = layui.layer;
+  <script>
+    layui.config({
+      base: 'js/'
+    }).use(['jquery', 'form', 'layer', 'element', 'laytpl', 'rate', 'paging'], function () {
+      var element = layui.element;
+      var $ = layui.jquery;
+      var laytpl = layui.laytpl;
+      var form = layui.form;
+      var layer = layui.layer;
+      var rate = layui.rate;
+      var paging = layui.paging();
 
-  var data = { //数据
-    "list":[
-      {"bookId":"1","cover":"img1","title":"1","author":"1","desc":"111111111111111111111111111111"},
-      {"bookId":"2","cover":"img2","title":"2","author":"2","desc":"2"}
-    ]
-  }
-  var bookList = document.getElementById('book-list')
-  var getTpl = bookList.innerHTML
-  ,view = document.getElementById('view');
-  laytpl(getTpl).render(data, function(html){
-    view.innerHTML = html;
-  });
-  
-});
-</script>
+      var userId = sessionStorage.getItem('userId');
+      if (userId == null) {
+        userId = 1;
+      }
+
+      var categoryListData = {}
+
+
+      //获取热门图书推荐数据
+      paging.init({
+        url: 'http://localhost:8080/bookSystem/getPagedHotBookList', //地址
+        type: 'POST',
+        elem: '#hotBookView', //内容容器
+        params: { //发送到服务端的参数
+          userId: userId
+        },
+        tempElem: '#book-list', //模块容器
+        pageConfig: { //分页参数配置
+          elem: 'hotPaged', //分页容器
+          pageSize: 5 //分页大小
+        },
+        success: function () { //渲染成功的回调
+        }
+      });
+
+      //获取个性化图书推荐数据
+      paging.init({
+        url: 'http://localhost:8080/bookSystem/getPagedPersonalBookList', //地址
+        type: 'POST',
+        elem: '#personalBookView', //内容容器
+        params: { //发送到服务端的参数
+          userId: userId
+        },
+        tempElem: '#book-list', //模块容器
+        pageConfig: { //分页参数配置
+          elem: 'personalPaged', //分页容器
+          pageSize: 5 //分页大小
+        },
+        success: function () { //渲染成功的回调
+        }
+      });
+
+
+      var bookListData = {}
+
+      function renderInit() {
+      }
+
+    });
+  </script>
 </body>
+
 </html>

@@ -27,4 +27,81 @@ public class FavoritesController {
         commonResponse.setData(favoritesList);
         return commonResponse;
     }
+
+    @RequestMapping(value = "/removeBookFromFavorites")
+    public CommonResponse removeBookFromFavorites(Long bookId,Long favoritesId){
+        CommonResponse commonResponse = new CommonResponse();
+        commonResponse.setCode("-1");
+        commonResponse.setMsg("操作失败");
+        if(favoritesService.removeBookFromFavorites(bookId, favoritesId)){
+            commonResponse.setCode("0");
+            commonResponse.setMsg("操作成功");
+        };
+        return commonResponse;
+    }
+
+    @RequestMapping(value = "/clearFavorites")
+    public CommonResponse clearFavorites(Long favoritesId){
+        CommonResponse commonResponse = new CommonResponse();
+        commonResponse.setCode("-1");
+        commonResponse.setMsg("操作失败");
+        if(favoritesService.clearFavorites(favoritesId)){
+            commonResponse.setCode("0");
+            commonResponse.setMsg("操作成功");
+        };
+        return commonResponse;
+    }
+
+    @RequestMapping(value = "/deleteFavorites")
+    public CommonResponse deleteFavorites(Long userId,Long favoritesId){
+        CommonResponse<Long> commonResponse = new CommonResponse<>();
+        commonResponse.setCode("-1");
+        commonResponse.setMsg("操作失败");
+        if(favoritesService.clearAndDeleteFavorites(favoritesId)){
+            Favorites favorites = favoritesService.getFavoritesListByUserId(userId).get(1);
+            if(favorites!=null) {
+                commonResponse.setCode("0");
+                commonResponse.setMsg("操作成功");
+                commonResponse.setData(favorites.getFavoritesId());
+            }
+        };
+        return commonResponse;
+    }
+
+    @RequestMapping(value = "/addFavorites")
+    public CommonResponse addFavorites(Long userId,String name){
+        CommonResponse commonResponse = new CommonResponse();
+        commonResponse.setCode("-1");
+        commonResponse.setMsg("操作失败");
+        if(favoritesService.addNewFavorites(userId, name)){
+            commonResponse.setCode("0");
+            commonResponse.setMsg("操作成功");
+        };
+        return commonResponse;
+    }
+
+    @RequestMapping("/moveBookToAnotherFavorites")
+    public CommonResponse moveBookToAnotherFavorites(Long bookId,Long fromFavoritesId,Long toFavoritesId){
+        CommonResponse commonResponse = new CommonResponse();
+        commonResponse.setCode("-1");
+        commonResponse.setMsg("操作失败");
+        if(favoritesService.moveBookToAnotherFavorites(bookId, fromFavoritesId, toFavoritesId)){
+            commonResponse.setCode("0");
+            commonResponse.setMsg("操作成功");
+        };
+        return commonResponse;
+    }
+
+    @RequestMapping(value = "/addBookToFavorites")
+    public CommonResponse addBookToFavorites(Long bookId,Long favoritesId){
+        CommonResponse commonResponse = new CommonResponse();
+        commonResponse.setCode("-1");
+        commonResponse.setMsg("图书已在该收藏夹中");
+        if(favoritesService.addBookToFavorites(bookId,favoritesId)){
+            commonResponse.setCode("0");
+            commonResponse.setMsg("操作成功");
+        };
+        return commonResponse;
+
+    }
 }

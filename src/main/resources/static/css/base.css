@@ -18,13 +18,14 @@ body.login{
 
 .jumbotron{
     margin-top: 20px;
-    background-color: aqua;
+    background: url("../img/index.jpg") no-repeat;
+    background-size: 100%;
     width: 800px;
     height: 200px;
 }
 
 .recommend-area{
-    background-color: bisque;
+    background-color: rgb(247, 246, 242);
     width: 800px;
 }
 
