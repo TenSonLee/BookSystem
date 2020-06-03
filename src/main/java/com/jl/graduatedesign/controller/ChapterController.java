@@ -4,6 +4,8 @@ import com.jl.graduatedesign.entity.Chapter;
 import com.jl.graduatedesign.entity.ReadHistory;
 import com.jl.graduatedesign.service.ChapterService;
 import com.jl.graduatedesign.vo.CommonResponse;
+import com.jl.graduatedesign.vo.PagedChapterSearchCondition;
+import com.jl.graduatedesign.vo.PagedResponse;
 import com.jl.graduatedesign.vo.ReadChapterData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -55,4 +57,55 @@ public class ChapterController {
         commonResponse.setData(chapter.getChapterId());
         return commonResponse;
     }
+
+    @RequestMapping(value = "/getPagedChapterList")
+    public PagedResponse getPagedChapterList(PagedChapterSearchCondition condition){
+        System.out.println(condition);
+        PagedResponse<Chapter> pagedResponse = new PagedResponse<>();
+        List<Chapter> chapterList = chapterService.getPagedChapterListByCondition(condition);
+        int count = chapterService.countChapterByCondition(condition);
+        pagedResponse.setRel(true);
+        pagedResponse.setMsg("操作成功");
+        pagedResponse.setList(chapterList);
+        pagedResponse.setCount(count);
+        return pagedResponse;
+    }
+
+    @RequestMapping(value = "/addNewChapter")
+    public CommonResponse addNewChapter(Chapter chapter) throws Exception {
+        CommonResponse commonResponse = new CommonResponse();
+        commonResponse.setCode("-1");
+        commonResponse.setMsg("操作失败");
+        if(chapterService.addNewChapter(chapter)){
+            commonResponse.setCode("0");
+            commonResponse.setMsg("操作成功");
+        };
+        return commonResponse;
+    }
+
+    @RequestMapping(value = "/updateChapter")
+    public CommonResponse updateChapter(Chapter chapter) throws Exception {
+        CommonResponse commonResponse = new CommonResponse();
+        commonResponse.setCode("-1");
+        commonResponse.setMsg("操作失败");
+        if(chapterService.updateChapter(chapter)){
+            commonResponse.setCode("0");
+            commonResponse.setMsg("操作成功");
+        };
+        return commonResponse;
+    }
+
+    @RequestMapping(value = "/deleteChapterById")
+    public CommonResponse deleteChapterById(Long chapterId) throws Exception {
+        CommonResponse commonResponse = new CommonResponse();
+        commonResponse.setCode("-1");
+        commonResponse.setMsg("操作失败");
+        if(chapterService.deleteChapterById(chapterId)){
+            commonResponse.setCode("0");
+            commonResponse.setMsg("操作成功");
+        };
+        return commonResponse;
+    }
+
+
 }

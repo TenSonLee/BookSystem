@@ -14,23 +14,13 @@ public class Chapter {
     @Column(name = "content_id")
     private Long contentId;
 
+    private String content;
+
     private String title;
 
     private Integer words;
 
     private Integer series;
-
-    @Override
-    public String toString() {
-        return "Chapter{" +
-                "chapterId=" + chapterId +
-                ", bookId=" + bookId +
-                ", contentId=" + contentId +
-                ", title='" + title + '\'' +
-                ", words=" + words +
-                ", series=" + series +
-                '}';
-    }
 
     public Long getChapterId() {
         return chapterId;
@@ -56,6 +46,14 @@ public class Chapter {
         this.contentId = contentId;
     }
 
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
     public String getTitle() {
         return title;
     }
@@ -78,5 +76,18 @@ public class Chapter {
 
     public void setSeries(Integer series) {
         this.series = series;
+    }
+
+    @Override
+    public String toString() {
+        return "Chapter{" +
+                "chapterId=" + chapterId +
+                ", bookId=" + bookId +
+                ", contentId=" + contentId +
+                ", content='" + content + '\'' +
+                ", title='" + title + '\'' +
+                ", words=" + words +
+                ", series=" + series +
+                '}';
     }
 }

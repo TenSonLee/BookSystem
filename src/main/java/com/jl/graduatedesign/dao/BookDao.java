@@ -18,5 +18,17 @@ public interface BookDao {
 
     List<Book> getPagedBookListFromFavorites(Long favoritesId,Integer pageIndex,Integer pageSize);
 
+    List<Book> getPagedBookListInAdmin(PagedBookSearchCondition condition);
+
+    int countBookInAdmin(PagedBookSearchCondition condition);
+
     int countFavoritesBooks(Long favoritesId);
+
+    List<Book> getPagedHotBookList(Integer pageIndex,Integer pageSize);
+
+    int countBook();
+
+    int deleteBookById(Long bookId);
+
+    int insertBook(Book book);
 }

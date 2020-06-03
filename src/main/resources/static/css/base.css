@@ -36,7 +36,6 @@ body.login{
 }
 
 .book-item-cover{
-    background-color: cadetblue;
     width: 100px;
     height: 120px;
 }
@@ -54,11 +53,6 @@ body.login{
     height: 220px;
 }
 
-.book-info-cover{
-    background-color: cadetblue;
-    width: 180px;
-    height: 196px;
-}
 
 .book-info-operator>button{
     margin-left: 20px;

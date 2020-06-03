@@ -19,4 +19,8 @@
     <delete id="deleteRecommend">
         delete from t_recommend where user_id = #{userId} and book_id = #{bookId}
     </delete>
+
+    <select id="getAll" resultMap="baseResultMap">
+        select * from t_recommend
+    </select>
 </mapper>

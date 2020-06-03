@@ -1,6 +1,7 @@
 package com.jl.graduatedesign.service;
 
 import com.jl.graduatedesign.entity.Evaluation;
+import com.jl.graduatedesign.vo.PagedEvaluationSearchCondition;
 
 import java.util.List;
 
@@ -14,4 +15,8 @@ public interface EvaluationService {
     List<Evaluation> getPagedEvaluationList(Long bookId,Integer pageIndex,Integer pageSize);
 
     int countEvaluationByBookId(Long bookId);
+
+    List<Evaluation> getPagedEvaluationListByCondition(PagedEvaluationSearchCondition condition);
+
+    int countEvaluationByCondition(PagedEvaluationSearchCondition condition);
 }

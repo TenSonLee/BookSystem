@@ -1,39 +1,112 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <title>图书推荐系统首页</title>
-  <link rel="stylesheet" href="./layui/css/layui.css"><!--引入layui文件，-->
-  <link rel="stylesheet" href="./css/base.css"><!--加入自己的CSS样式-->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>后台管理</title>
+    <link rel="stylesheet" href="./layui/css/layui.css">
+    <!--引入layui文件，-->
+    <link rel="stylesheet" href="./css/base.css">
+    <!--加入自己的CSS样式-->
 </head>
+
 <body class="layui-layout-body">
-  <div class="layui-layout layui-layout-admin">
-    <div class="layui-header">
-      <div class="layui-logo">图书推荐系统</div>
-      <!-- 头部区域（可配合layui已有的水平导航） -->
-      <ul class="layui-nav layui-layout-right">
-        <li class="layui-nav-item layui-this"><a href="index.html">首页</a></li>
-        <li class="layui-nav-item"><a href="">我的收藏</a></li>
-        <li class="layui-nav-item"><a href="">阅读记录</a></li>
-        <li class="layui-nav-item"><a href="">历史评价</a></li>
-        <li class="layui-nav-item"><a href="">个人中心</a></li>
-      </ul>
+    <div class="layui-layout layui-layout-admin">
+        <div class="layui-header">
+            <div class="layui-logo">图书推荐系统后台管理</div>
+            <!-- 头部区域（可配合layui已有的水平导航） -->
+            <ul class="layui-nav layui-layout-right">
+                <li class="layui-nav-item" id="navUserInfoView"></li>
+                <li class="layui-nav-item"><a href="">修改密码</a></li>
+                <li class="layui-nav-item"><a href="">退出登录</a></li>
+            </ul>
+        </div>
+
+        <div class="layui-side layui-bg-black">
+            <div class="layui-side-scroll">
+                <!-- 左侧导航区域（可配合layui已有的垂直导航） -->
+                <ul class="layui-nav layui-nav-tree" lay-filter="test">
+                    <li class="layui-nav-item layui-this"><a href="">用户管理</a></li>
+                    <li class="layui-nav-item"><a href="">图书管理</a></li>
+                    <li class="layui-nav-item"><a href="">评价管理</a></li>
+                    <li class="layui-nav-item"><a href="">个人信息</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="layui-body">
+            <!-- 内容主体区域 -->
+            <div style="padding: 15px;">
+                <!-- 查询条件区域表单 -->
+                <form class="layui-form">
+
+                </form>
+                <!-- 数据表格 -->
+                <table id="dataTable" lay-filter="dataTable"></table>
+            </div>
+        </div>
     </div>
-    
-    <div class="layui-body">
-      <!-- 内容主体区域 -->
-      <div style="padding-top: 15px;">内容主体区域</div>
-    </div>
-    
-  </div>
-<script src="./layui/layui.js"></script>
-<script>
-//JavaScript代码区域
-layui.use('element', function(){
-  var element = layui.element;
-  
-});
+
+    <script id="navUserInfo" type="text/html">
+    <a href="javascript:;">
+        <img src="http://t.cn/RCzsdCq" class="layui-nav-img">
+        {{ d.userName }}
+      </a>
 </script>
+
+<!--表格顶部操作栏-->
+<script type="text/html" id="toolbar">
+    
+</script>
+
+<!--每条数据的操作栏-->
+<script type="text/html" id="bar">
+    
+</script>
+
+
+    <script src="./layui/layui.js"></script>
+    <script src="./js/urlParam.js"></script>
+    <script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.js"></script>
+    <script>
+        //JavaScript代码区域
+        layui.use(['jquery', 'form', 'layer', 'element', 'laytpl', 'table'], function () {
+            var element = layui.element;
+            var $ = layui.jquery;
+            var laytpl = layui.laytpl;
+            var form = layui.form;
+            var layer = layui.layer;
+            var table = layui.table;
+
+            var thisUserInfo = {
+                userName: "一号管理员"
+            }
+
+            var userId = sessionStorage.getItem('userId');
+            if (userId == null) {
+                userId = 11;
+            }
+
+            var navUserInfo = document.getElementById('navUserInfo')
+            var navUserInfoTpl = navUserInfo.innerHTML
+                , navUserInfoView = document.getElementById('navUserInfoView');
+            laytpl(navUserInfoTpl).render(thisUserInfo, function (html) {
+                navUserInfoView.innerHTML = html;
+            })
+        });
+    </script>
 </body>
+
 </html>
+
+<div class="layui-inline">
+    <label class="layui-form-label">范围</label>
+    <div class="layui-input-inline" style="width: 100px;">
+      <input type="text" name="price_min" placeholder="￥" autocomplete="off" class="layui-input">
+    </div>
+    <div class="layui-form-mid">-</div>
+    <div class="layui-input-inline" style="width: 100px;">
+      <input type="text" name="price_max" placeholder="￥" autocomplete="off" class="layui-input">
+    </div>
+  </div>

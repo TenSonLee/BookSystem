@@ -3,6 +3,7 @@ package com.jl.graduatedesign.controller;
 import com.jl.graduatedesign.entity.Evaluation;
 import com.jl.graduatedesign.service.EvaluationService;
 import com.jl.graduatedesign.vo.CommonResponse;
+import com.jl.graduatedesign.vo.PagedEvaluationSearchCondition;
 import com.jl.graduatedesign.vo.PagedResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -67,5 +68,17 @@ public class EvaluationController {
             commonResponse.setMsg("操作成功");
         };
         return commonResponse;
+    }
+
+    @RequestMapping(value = "/getPagedEvaluationListByCondition")
+    public PagedResponse getPagedEvaluationListByCondition(PagedEvaluationSearchCondition condition){
+        int count = evaluationService.countEvaluationByCondition(condition);
+        List<Evaluation> evaluationList = evaluationService.getPagedEvaluationListByCondition(condition);
+        PagedResponse<Evaluation> pagedResponse = new PagedResponse<>();
+        pagedResponse.setRel(true);
+        pagedResponse.setMsg("操作成功");
+        pagedResponse.setList(evaluationList);
+        pagedResponse.setCount(count);
+        return pagedResponse;
     }
 }

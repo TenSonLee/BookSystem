@@ -14,6 +14,10 @@
     <select id="getBookById" resultMap="baseResultMap">
         select * from t_book where book_id = #{bookId}
     </select>
+
+    <select id="countBook" resultType="java.lang.Integer">
+        select count(*) from t_book
+    </select>
     
     <select id="getPagedBookListByCondition" resultMap="baseResultMap" parameterType="com.jl.graduatedesign.vo.PagedBookSearchCondition">
         select * from t_book where 1=1 and
@@ -27,6 +31,46 @@
         <if test="sortOrder == 2">
             order by recommend_num desc
         </if>
+        limit ${(pageIndex-1)*pageSize},${pageSize}
+    </select>
+
+    <select id="countBookInAdmin" resultType="java.lang.Integer" parameterType="com.jl.graduatedesign.vo.PagedBookSearchCondition">
+        select count(*) from t_book where 1=1 and
+        <if test="categoryId != null">
+            book_category_id = #{categoryId} and
+        </if>
+        <if test="publisher != null and publisher != ''">
+            publisher like '%${publisher}%' and
+        </if>
+        <if test="title != null and title != ''">
+            title like '%${title}%' and
+        </if>
+        <if test="author != null and author != ''">
+            author like '%${author}%' and
+        </if> 1=1
+    </select>
+
+    <select id="getPagedBookListInAdmin" resultMap="baseResultMap" parameterType="com.jl.graduatedesign.vo.PagedBookSearchCondition">
+        select * from t_book where 1=1 and
+        <if test="categoryId != null">
+            book_category_id = #{categoryId} and
+        </if>
+        <if test="publisher != null and publisher != ''">
+            publisher like '%${publisher}%' and
+        </if>
+        <if test="title != null and title != ''">
+            title like '%${title}%' and
+        </if>
+        <if test="author != null and author != ''">
+            author like '%${author}%' and
+        </if> 1=1
+        limit ${(pageIndex-1)*pageSize},${pageSize}
+    </select>
+
+    <select id="getPagedHotBookList" resultMap="baseResultMap">
+        select * from t_book order by (
+            recommend_num*0.05+favorites_num*0.25+evaluation_num*0.7
+        ) desc
         limit ${(pageIndex-1)*pageSize},${pageSize}
     </select>
 
@@ -65,4 +109,13 @@
         </set>
         where book_id=#{bookId}
     </update>
+
+    <delete id="deleteBookById">
+      delete from t_book where book_id = #{book_id}
+    </delete>
+
+    <insert id="insertBook" parameterType="com.jl.graduatedesign.entity.Book">
+        insert into t_book (title,author,book_category_id,publisher,pubdate,cover)
+        values (#{title},#{author},#{bookCategoryId},#{publisher},#{pubdate},#{cover})
+    </insert>
 </mapper>

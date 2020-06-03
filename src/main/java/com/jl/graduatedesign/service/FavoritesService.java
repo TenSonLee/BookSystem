@@ -17,5 +17,5 @@ public interface FavoritesService {
 
     boolean moveBookToAnotherFavorites(Long bookId,Long fromFavoritesId,Long toFavoritesId);
 
-    boolean addBookToFavorites(Long bookId,Long favoritesId);
+    boolean addBookToFavorites(Long bookId,Long favoritesId) throws Exception;
 }

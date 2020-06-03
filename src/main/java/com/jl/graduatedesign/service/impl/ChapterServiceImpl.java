@@ -6,10 +6,12 @@ import com.jl.graduatedesign.dao.ReadHistoryDao;
 import com.jl.graduatedesign.entity.Chapter;
 import com.jl.graduatedesign.entity.ReadHistory;
 import com.jl.graduatedesign.service.ChapterService;
+import com.jl.graduatedesign.vo.PagedChapterSearchCondition;
 import com.jl.graduatedesign.vo.ReadChapterData;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
@@ -90,5 +92,52 @@ public class ChapterServiceImpl implements ChapterService {
     @Override
     public Chapter getChapterByBookIdAndSeries(Long bookId, Integer series) {
         return chapterDao.getChapterByBookIdAndSeries(bookId,series);
+    }
+
+    @Override
+    public List<Chapter> getPagedChapterListByCondition(PagedChapterSearchCondition condition) {
+        return chapterDao.getPagedChapterListByCondition(condition);
+    }
+
+    @Override
+    public int countChapterByCondition(PagedChapterSearchCondition condition) {
+        return chapterDao.countChapterByCondition(condition);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean addNewChapter(Chapter chapter) throws Exception {
+        chapter.setWords(chapter.getContent().length());
+        if(chapterDao.insertChapter(chapter)>0) {
+            System.out.println(chapter);
+            if(chapterDao.insertContent(chapter)>0){
+                return true;
+            }
+        }
+        throw new Exception("插入章节失败");
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean updateChapter(Chapter chapter) throws Exception {
+        chapter.setWords(chapter.getContent().length());
+        if(chapterDao.updateChapter(chapter)>0) {
+            System.out.println(chapter);
+            if(chapterDao.updateContent(chapter)>0){
+                return true;
+            }
+        }
+        throw new Exception("更新章节失败");
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean deleteChapterById(Long chapterId) throws Exception {
+        if(chapterDao.deleteContent(chapterId)>0) {
+            if(chapterDao.deleteChapter(chapterId)>0){
+                return true;
+            }
+        }
+        throw new Exception("删除章节失败");
     }
 }

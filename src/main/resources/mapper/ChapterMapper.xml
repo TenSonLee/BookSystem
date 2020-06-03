@@ -24,4 +24,73 @@
         select content from t_chapter_content where chapter_id = #{chapterId}
     </select>
 
+    <select id="getPagedChapterListByCondition" resultMap="baseResultMap" parameterType="com.jl.graduatedesign.vo.PagedChapterSearchCondition">
+        select c.*,cc.content from t_chapter c
+        left join t_chapter_content cc on c.chapter_id = cc.chapter_id
+        where 1=1 and
+        <if test="title != null and title != ''">
+            c.title like '%${title}%' and
+        </if>
+        <if test="series != null">
+            c.series = #{series} and
+        </if>
+        <if test="bookId != null">
+            c.book_id = #{bookId} and
+        </if> 1=1
+        limit ${(pageIndex-1)*pageSize},${pageSize}
+    </select>
+
+    <select id="countChapterByCondition" resultType="java.lang.Integer" parameterType="com.jl.graduatedesign.vo.PagedChapterSearchCondition">
+        select count(*) from t_chapter c
+        left join t_chapter_content cc on c.chapter_id = cc.chapter_id
+        where 1=1 and
+        <if test="title != null and title != ''">
+            c.title like '%${title}%' and
+        </if>
+        <if test="series != null">
+            c.series = #{series} and
+        </if>
+        <if test="bookId != null">
+            c.book_id = #{bookId} and
+        </if> 1=1
+    </select>
+
+    <insert id="insertChapter" parameterType="com.jl.graduatedesign.entity.Chapter" useGeneratedKeys="true" keyProperty="chapterId">
+        insert into t_chapter (book_id,title,words,series)
+        values (#{bookId},#{title},#{words},#{series})
+    </insert>
+
+    <insert id="insertContent" parameterType="com.jl.graduatedesign.entity.Chapter">
+        insert into t_chapter_content (chapter_id,content)
+        values (#{chapterId},#{content})
+    </insert>
+
+    <update id="updateChapter" parameterType="com.jl.graduatedesign.entity.Chapter">
+        update t_chapter
+        <set>
+            <if test="bookId != null">book_id=#{bookId},</if>
+            <if test="title != null">title=#{title},</if>
+            <if test="series != null">`series`=#{series},</if>
+            <if test="words != null">words=#{words},</if>
+            <if test="contentId != null">content_id =#{contentId}</if>
+        </set>
+        where chapter_id=#{chapterId}
+    </update>
+
+    <update id="updateContent" parameterType="com.jl.graduatedesign.entity.Chapter">
+        update t_chapter_content
+        <set>
+            <if test="content != null">content=#{content}</if>
+        </set>
+        where chapter_id=#{chapterId}
+    </update>
+
+    <delete id="deleteChapter" >
+        delete from t_chapter where chapter_id = #{chapterId}
+    </delete>
+
+    <delete id="deleteContent" >
+        delete from t_chapter_content where chapter_id = #{chapterId}
+    </delete>
+
 </mapper>

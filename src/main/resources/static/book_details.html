@@ -18,10 +18,10 @@
             <!-- 头部区域（可配合layui已有的水平导航） -->
             <ul class="layui-nav layui-layout-right">
                 <li class="layui-nav-item"><a href="index.html">首页</a></li>
+                <li class="layui-nav-item"><a href="./book_search.html?sortOrder=0&category=0&keyword=">图书检索</a></li>
                 <li class="layui-nav-item"><a href="./favorites.html?favoritesId=0">我的收藏</a></li>
                 <li class="layui-nav-item"><a href="./read_history.html">阅读记录</a></li>
-                <li class="layui-nav-item"><a href="">历史评价</a></li>
-                <li class="layui-nav-item"><a href="">个人中心</a></li>
+                <li class="layui-nav-item"><a href="./login.html">退出登录</a></li>
             </ul>
         </div>
 
@@ -57,7 +57,7 @@
     <div class="layui-container" style="width:900px">
         <div class="layui-row">
           <div class="layui-col-md4 book-info-cover">
-            <span>{{ d.cover }}</span>
+            <img src={{ d.cover }} style="width: 180px;height: 196px;"/>
           </div>
 
           <div class="layui-col-md6 book-info-content" style="margin-left:20px">

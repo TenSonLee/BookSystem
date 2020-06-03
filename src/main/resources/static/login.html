@@ -21,14 +21,14 @@
                     <!-- //采用inline表示可以继续放 -->  
                     <input type="username" name="username" required lay-verify="username" placeholder="请输入用户名" autocomplete="off" class="layui-input" lay-verType="tips">      
                 </div>
-                <a href="http://www.layui.com" target="_blank" style="margin-left: 10px;">注册账号</a>
+                <a href="./register.html" style="margin-left: 10px;">注册账号</a>
            </div>
             <div class="layui-form-item">
                 <label class="layui-form-label">密码
                     <i class="layui-icon"> &#xe672;</i>     
                 </label>
                 <div class="layui-input-inline">
-                    <input type="userpassword" name="userpassword" required lay-verify="userpassword" placeholder="请输入密码" autocomplete="off" class="layui-input">
+                    <input type="password" name="userpassword" required lay-verify="userpassword" placeholder="请输入密码" autocomplete="off" class="layui-input">
                 </div>
                 <a href="http://www.layui.com" target="_blank" style="margin-left: 10px;">找回密码</a>
             </div>
@@ -96,7 +96,8 @@
                     layer.msg("登陆成功",{icon:1})
                     setTimeout(function(){
                         //如果输入成功，可以跳到另一个你需要的界面
-                        location.href="./index.html";
+                        if(res.data.type == 1){location.href="./index.html";}
+                        else if (res.data.type == 2){location.href="./user_manage.html"}
                     },500)
                 }else{
                 //不等于0时填出的内容

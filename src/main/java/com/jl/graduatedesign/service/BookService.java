@@ -16,4 +16,22 @@ public interface BookService {
     List<Book> getPagedBookListFromFavorites(Long favoritesId,Integer pageIndex,Integer pageSize);
 
     int countFavoritesBooks(Long favoritesId);
+
+    List<Book> getPagedHotBookList(Long userId,Integer pageIndex,Integer pageSize);
+
+    int countBook();
+
+    List<Book> getPagedPersonalBookList(Long userId,Integer pageIndex,Integer pageSize);
+
+    int countPersonalBoolList(Long userId);
+
+    boolean deleteBookById(Long bookId);
+
+    List<Book> getPagedBookListInAdmin(PagedBookSearchCondition condition);
+
+    int countBookInAdmin(PagedBookSearchCondition condition);
+
+    boolean updateBookInfo(Book book);
+
+    boolean addNewBook(Book book);
 }

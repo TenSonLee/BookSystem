@@ -1,6 +1,7 @@
 package com.jl.graduatedesign.dao;
 
 import com.jl.graduatedesign.entity.Evaluation;
+import com.jl.graduatedesign.vo.PagedEvaluationSearchCondition;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -20,4 +21,8 @@ public interface EvaluationDao {
     List<Evaluation> queryPagedEvaluationList(Long bookId,Integer pageIndex,Integer pageSize);
 
     int countEvaluationNum(Long bookId);
+
+    List<Evaluation> getPagedEvaluationListByCondition(PagedEvaluationSearchCondition condition);
+
+    int countEvaluationListByCondition(PagedEvaluationSearchCondition condition);
 }

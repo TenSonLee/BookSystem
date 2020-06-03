@@ -6,6 +6,7 @@ import com.jl.graduatedesign.dao.UserDao;
 import com.jl.graduatedesign.entity.Book;
 import com.jl.graduatedesign.entity.Evaluation;
 import com.jl.graduatedesign.service.EvaluationService;
+import com.jl.graduatedesign.vo.PagedEvaluationSearchCondition;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -100,5 +101,15 @@ public class EvaluationServiceImpl implements EvaluationService {
     @Override
     public int countEvaluationByBookId(Long bookId) {
         return evaluationDao.countEvaluationNum(bookId);
+    }
+
+    @Override
+    public List<Evaluation> getPagedEvaluationListByCondition(PagedEvaluationSearchCondition condition) {
+        return evaluationDao.getPagedEvaluationListByCondition(condition);
+    }
+
+    @Override
+    public int countEvaluationByCondition(PagedEvaluationSearchCondition condition) {
+        return evaluationDao.countEvaluationListByCondition(condition);
     }
 }

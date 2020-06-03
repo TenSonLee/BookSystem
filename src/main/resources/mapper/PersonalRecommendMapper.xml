@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jl.graduatedesign.dao.PersonalRecommendDao">
+
+    <resultMap id="baseResultMap" type="com.jl.graduatedesign.entity.PersonalRecommendInfo">
+        <result column="book_id"  property="bookId" />
+        <result column="user_id"  property="userId" />
+    </resultMap>
+
+    <resultMap id="bookMap" type="com.jl.graduatedesign.entity.Book">
+        <result column="book_category_id"  property="bookCategoryId" />
+        <result column="book_id"  property="bookId" />
+        <result column="favorites_num"  property="favoritesNum" />
+        <result column="evaluation_num"  property="evaluationNum" />
+        <result column="recommend_num"  property="recommendNum" />
+    </resultMap>
+
+
+    <insert id="insertPersonalRecommendInfo">
+        insert into t_personal_recommend (user_id,book_id,`value`)
+        values (#{userId},#{bookId},#{value})
+    </insert>
+
+    <select id="getPagedPersonalBookList" resultMap="bookMap">
+        select * from t_book b,t_personal_recommend p
+        where b.book_id = p.book_id and p.user_id = #{userId}
+        order by `value` desc
+        limit ${(pageIndex-1)*pageSize},${pageSize}
+    </select>
+
+    <select id="countByUserId" resultType="java.lang.Integer">
+        select count(*) from t_book b,t_personal_recommend p
+        where b.book_id = p.book_id and p.user_id = #{userId}
+    </select>
+
+    <delete id="clearByUserId">
+        delete from t_personal_recommend where user_id = #{userId}
+    </delete>
+
+</mapper>

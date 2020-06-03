@@ -11,7 +11,36 @@
         select * from t_user where code = #{code} and password = #{password}
     </select>
 
+    <select id="getAllUserByType" resultMap="baseResultMap">
+        select * from t_user where type = #{type}
+    </select>
+
+    <select id="getPagedUserListByType" resultMap="baseResultMap">
+        select * from t_user where type=#{type} and
+        code like '%${code}%' and user_name like '%${userName}%'
+        limit ${(pageIndex-1)*pageSize},${pageSize}
+    </select>
+
+    <select id="countUserByType" resultType="java.lang.Integer">
+        select count(*) from t_user where type=#{type} and
+        code like '%${code}%' and user_name like '%${userName}%'
+    </select>
+
     <select id="getUserNameById" resultType="java.lang.String">
         select user_name from t_user where user_id = #{userId}
     </select>
+
+    <delete id="deleteUserById">
+        delete from t_user where user_id=#{userId}
+    </delete>
+
+    <update id="resetPassById">
+        update t_user set `password` = '123456'
+        where user_id = #{userId}
+    </update>
+
+    <insert id="register" parameterType="com.jl.graduatedesign.entity.User">
+        insert into t_user (type,user_name,`code`,`password`,sex,tel,email)
+        values (1,#{userName},#{code},#{password},#{sex},#{tel},#{email})
+    </insert>
 </mapper>

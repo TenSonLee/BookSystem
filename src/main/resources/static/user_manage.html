@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>后台管理</title>
+    <link rel="stylesheet" href="./layui/css/layui.css">
+    <!--引入layui文件，-->
+    <link rel="stylesheet" href="./css/base.css">
+    <!--加入自己的CSS样式-->
+</head>
+
+<body class="layui-layout-body">
+    <div class="layui-layout layui-layout-admin">
+        <div class="layui-header">
+            <div class="layui-logo">图书推荐系统后台管理</div>
+            <!-- 头部区域（可配合layui已有的水平导航） -->
+            <ul class="layui-nav layui-layout-right">
+                <li class="layui-nav-item" id="navUserInfoView"></li>
+                <li class="layui-nav-item"><a href="">修改密码</a></li>
+                <li class="layui-nav-item"><a href="./login.html">退出登录</a></li>
+            </ul>
+        </div>
+
+        <div class="layui-side layui-bg-black">
+            <div class="layui-side-scroll">
+                <!-- 左侧导航区域（可配合layui已有的垂直导航） -->
+                <ul class="layui-nav layui-nav-tree" lay-filter="test">
+                    <li class="layui-nav-item layui-this"><a href="">用户管理</a></li>
+                    <li class="layui-nav-item"><a href="./book_manage.html">图书管理</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="layui-body">
+            <!-- 内容主体区域 -->
+            <div style="padding: 15px;">
+                <!-- 查询条件区域表单 -->
+                <form class="layui-form">
+                    <div class="layui-input-inline">
+                        <label class="layui-form-label">账号</label>
+                        <div class="layui-input-inline" style="width: 180px;">
+                            <input type="text" name="code" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+
+                    <div class="layui-input-inline">
+                        <label class="layui-form-label">用户昵称</label>
+                        <div class="layui-input-inline" style="width: 150px;">
+                            <input type="text" name="userName" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+
+                    <div class="layui-input-inline" style="margin-left: 10px;">
+                        <button class="layui-btn layui-btn-sm" lay-submit lay-filter="search">搜索</button>
+                        <button type="reset" class="layui-btn layui-btn-primary layui-btn-sm">重置</button>
+                    </div>
+
+                </form>
+                <!-- 数据表格 -->
+                <table id="dataTable" lay-filter="dataTable"></table>
+            </div>
+        </div>
+    </div>
+
+    <script id="navUserInfo" type="text/html">
+    <a href="javascript:;">
+        <img src="http://t.cn/RCzsdCq" class="layui-nav-img">
+        {{ d.userName }}
+      </a>
+</script>
+
+    <!--表格顶部操作栏-->
+    <script type="text/html" id="toolbar">
+
+</script>
+
+    <!--每条数据的操作栏-->
+    <script type="text/html" id="bar">
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+    <a class="layui-btn layui-btn-xs" lay-event="resetPass">重置密码</a>
+</script>
+
+
+    <script src="./layui/layui.js"></script>
+    <script src="./js/urlParam.js"></script>
+    <script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.js"></script>
+    <script>
+        //JavaScript代码区域
+        layui.use(['jquery', 'form', 'layer', 'element', 'laytpl', 'table'], function () {
+            var element = layui.element;
+            var $ = layui.jquery;
+            var laytpl = layui.laytpl;
+            var form = layui.form;
+            var layer = layui.layer;
+            var table = layui.table;
+
+            var thisUserInfo = {
+                userName: "一号管理员"
+            }
+
+            var userId = sessionStorage.getItem('userId');
+            if (userId == null) {
+                userId = 11;
+            }
+
+            var navUserInfo = document.getElementById('navUserInfo')
+            var navUserInfoTpl = navUserInfo.innerHTML
+                , navUserInfoView = document.getElementById('navUserInfoView');
+            laytpl(navUserInfoTpl).render(thisUserInfo, function (html) {
+                navUserInfoView.innerHTML = html;
+            })
+
+            var tableArea = table.render({
+                elem: '#dataTable'
+                , toolbar: '#toolbar'
+                , height: 550
+                , defaultToolbar: []
+                , url: 'http://localhost:8080/bookSystem/getPagedUserList' //数据接口
+                , request: {
+                    pageName: 'pageIndex' //页码的参数名称，默认：page
+                    , limitName: 'pageSize' //每页数据量的参数名，默认：limit
+                }
+                , where: {
+                    type: 1
+                }
+                , parseData: function (res) { //res 即为原始返回的数据
+                    return {
+                        "code": res.rel == true ? 0 : -1, //解析接口状态
+                        "msg": res.msg, //解析提示文本
+                        "count": res.count, //解析数据长度
+                        "data": res.list //解析数据列表
+                    };
+                }
+                , page: true //开启分页
+                , cols: [[ //表头
+                    { field: 'userId', title: 'ID', width: 80, sort: true }
+                    , { field: 'code', title: '账号', width: 80, sort: true }
+                    , { field: 'userName', title: '用户昵称', width: 120 }
+                    , {
+                        field: 'sex', title: '性别', width: 80,
+                        templet: function (d) {
+                            return d.sex == 1 ? '男' : '女'
+                        }
+                    }
+                    , {
+                        field: 'birthday', title: '生日', width: 120, sort: true,
+                        templet: function (d) {
+                            return d.birthday == null?'未知':d.birthday.substr(0, 10)
+                        }
+                    }
+                    , { field: 'tel', title: '电话', width: 177 }
+                    , { field: 'email', title: '邮箱', width: 177, sort: true }
+                    , { fixed: 'right', width: 200, align: 'center', toolbar: '#bar' } //这里的toolbar值是模板元素的选择器
+                ]]
+            });
+
+            //监听工具条 
+            table.on('tool(dataTable)', function (obj) {
+                var data = obj.data; //获得当前行数据
+                var layEvent = obj.event; //获得 lay-event 对应的值（也可以是表头的 event 参数对应的值）
+                var tr = obj.tr; //获得当前行 tr 的 DOM 对象（如果有的话）
+
+                if (layEvent == 'del') { //查看
+                    layer.confirm('真的删除行么', function (index) {
+                        //向服务端发送删除指令
+                        $.ajax({
+                            url: 'http://localhost:8080/bookSystem/deleteUserById',
+                            type: 'post',
+                            dataType: 'json',
+                            data: {
+                                userId: data.userId,
+                                code: '',
+                                userName: ''
+                            },
+                            success: function (res) {
+                                if (res.code == 0) {
+                                    //res.code == 0,表示用户输入成功，1表示失败               
+                                    layer.msg("删除成功")
+                                    obj.del(); //删除对应行（tr）的DOM结构，并更新缓存
+                                    layer.close(index);
+                                } else {
+                                    //不等于0时填出的内容
+                                    layer.msg(res.msg)
+                                }
+                            }
+                        })
+                    });
+                } else if (layEvent == 'resetPass') { //重置密码
+                    layer.confirm('确定重置吗', function (index) {
+                        //向服务端发送删除指令
+                        $.ajax({
+                            url: 'http://localhost:8080/bookSystem/resetPassById',
+                            type: 'post',
+                            dataType: 'json',
+                            data: {
+                                userId: data.userId
+                            },
+                            success: function (res) {
+                                if (res.code == 0) {
+                                    //res.code == 0,表示用户输入成功，1表示失败               
+                                    layer.msg("密码重置成功")
+                                    layer.close(index);
+                                } else {
+                                    //不等于0时填出的内容
+                                    layer.msg(res.msg)
+                                }
+                            }
+                        })
+                    });
+
+                } else if (layEvent === 'LAYTABLE_TIPS') {
+                    layer.alert('Hi，头部工具栏扩展的右侧图标。');
+                }
+            });
+
+            form.on('submit(search)', function (data) {
+                console.log(data.elem) //被执行事件的元素DOM对象，一般为button对象
+                console.log(data.form) //被执行提交的form对象，一般在存在form标签时才会返回
+                console.log(data.field) //当前容器的全部表单字段，名值对形式：{name: value}
+                tableArea.reload({
+                    where: data.field
+                    , page: {
+                        curr: 1 //重新从第 1 页开始
+                    }
+                })
+                return false; //阻止表单跳转。如果需要表单跳转，去掉这段即可。
+            });
+        });
+    </script>
+</body>
+
+</html>

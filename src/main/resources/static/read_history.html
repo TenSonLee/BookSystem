@@ -18,10 +18,10 @@
             <!-- 头部区域（可配合layui已有的水平导航） -->
             <ul class="layui-nav layui-layout-right">
                 <li class="layui-nav-item"><a href="index.html">首页</a></li>
+                <li class="layui-nav-item"><a href="./book_search.html?sortOrder=0&category=0&keyword=">图书检索</a></li>
                 <li class="layui-nav-item"><a href="./favorites.html?favoritesId=0">我的收藏</a></li>
                 <li class="layui-nav-item layui-this"><a href="./read_history.html">阅读记录</a></li>
-                <li class="layui-nav-item"><a href="">历史评价</a></li>
-                <li class="layui-nav-item"><a href="">个人中心</a></li>
+                <li class="layui-nav-item"><a href="./login.html">退出登录</a></li>
             </ul>
         </div>
 
@@ -53,7 +53,7 @@
                   </div>
 
                 <div class="layui-col-md2 book-item-cover">
-                  <span>{{ history.cover }}</span>
+                    <img src={{ history.cover }} style="width: 100px;height: 120px;"/>
                 </div>
 
                 <div class="layui-col-md8 book-item-content">
@@ -61,11 +61,11 @@
                   <p style="margin-top:5px">作者： {{ history.author }}</p>
                   <p style="margin-top:10px;width:300px">简介: {{ history.desc }}</p>
 
-                  <div class="history-item-operator" style="margin-left:55px;margin-top: 40px">
+                  <div class="history-item-operator" style="margin-left:30px;margin-top: 40px">
                     <p style="display: inline;">上次阅读到： {{ history.chapterTitle }}</p>
-                    <button  style="margin-left: 20px" onclick="location.href='./book_details.html?bookId={{ history.bookId }}'">书籍详情</button>
-                    <button  style="margin-left: 20px" onclick="location.href='./read.html?chapterId={{ history.chapterId }}'">继续阅读</button>
-                    <button  style="margin-left: 20px" id="deleteHistory{{ history.historyId }}">删除</button>
+                    <button  style="margin-left: 10px" onclick="location.href='./book_details.html?bookId={{ history.bookId }}'">书籍详情</button>
+                    <button  style="margin-left: 10px" onclick="location.href='./read.html?chapterId={{ history.chapterId }}'">继续阅读</button>
+                    <button  style="margin-left: 10px" id="deleteHistory{{ history.historyId }}">删除</button>
                   </div>
                 </div>
 

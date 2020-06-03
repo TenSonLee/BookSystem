@@ -93,7 +93,7 @@ public class FavoritesController {
     }
 
     @RequestMapping(value = "/addBookToFavorites")
-    public CommonResponse addBookToFavorites(Long bookId,Long favoritesId){
+    public CommonResponse addBookToFavorites(Long bookId,Long favoritesId) throws Exception {
         CommonResponse commonResponse = new CommonResponse();
         commonResponse.setCode("-1");
         commonResponse.setMsg("图书已在该收藏夹中");

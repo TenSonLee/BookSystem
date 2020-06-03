@@ -44,4 +44,27 @@
     <delete id="deleteEvaluation">
         delete from t_evaluation where user_id = #{userId} and book_id = #{bookId}
     </delete>
+
+    <select id="getPagedEvaluationListByCondition" resultMap="baseResultMap" parameterType="com.jl.graduatedesign.vo.PagedEvaluationSearchCondition">
+        select e.*,u.user_name as userName from t_evaluation e,t_user u
+        where e.user_id = u.user_id and
+        <if test="userName != null and userName != ''">
+            u.user_name like '%${userName}%' and
+        </if>
+        <if test="bookId != null">
+            e.book_id = #{bookId} and
+        </if> 1=1
+        limit ${(pageIndex-1)*pageSize},${pageSize}
+    </select>
+
+    <select id="countEvaluationListByCondition" resultType="java.lang.Integer" parameterType="com.jl.graduatedesign.vo.PagedEvaluationSearchCondition">
+        select count(*) from t_evaluation e,t_user u
+        where e.user_id = u.user_id and
+        <if test="userName != null and userName != ''">
+            u.user_name like '%${userName}%' and
+        </if>
+        <if test="bookId != null">
+            e.book_id = #{bookId} and
+        </if> 1=1
+    </select>
 </mapper>

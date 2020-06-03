@@ -1,10 +1,13 @@
 package com.jl.graduatedesign.service.impl;
 
+import com.jl.graduatedesign.dao.BookDao;
 import com.jl.graduatedesign.dao.FavoritesDao;
+import com.jl.graduatedesign.entity.Book;
 import com.jl.graduatedesign.entity.Favorites;
 import com.jl.graduatedesign.service.FavoritesService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
@@ -13,9 +16,16 @@ import java.util.List;
 public class FavoritesServiceImpl implements FavoritesService {
     private FavoritesDao favoritesDao;
 
+    private BookDao bookDao;
+
     @Autowired
     public void setFavoritesDao(FavoritesDao favoritesDao) {
         this.favoritesDao = favoritesDao;
+    }
+
+    @Autowired
+    public void setBookDao(BookDao bookDao) {
+        this.bookDao = bookDao;
     }
 
     @Override
@@ -67,10 +77,17 @@ public class FavoritesServiceImpl implements FavoritesService {
     }
 
     @Override
-    public boolean addBookToFavorites(Long bookId, Long favoritesId) {
+    @Transactional(rollbackFor = Exception.class)
+    public boolean addBookToFavorites(Long bookId, Long favoritesId) throws Exception {
         if(null == favoritesDao.getRecordId(bookId, favoritesId)){
             if(favoritesDao.insertBookToFavorites(bookId, favoritesId)>0){
-                return true;
+                    Book book = bookDao.getBookById(bookId);
+                    book.setFavoritesNum(book.getFavoritesNum() + 1);
+                    int updateCount = bookDao.updateBook(book);
+                    if(updateCount > 0){
+                        return true;
+                    }
+                throw new Exception("添加收藏操作未完成");
             };
         };
         return false;
